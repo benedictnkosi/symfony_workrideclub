@@ -29,7 +29,7 @@ class CommuterAddress
      *
      * @ORM\Column(name="full_address", type="string", length=100, nullable=true)
      */
-    #[ORM\Column(type: "string", length: 100, nullable: true)]
+    #[ORM\Column(type: "string", length: 200, nullable: true)]
     private $fullAddress;
 
     /**
