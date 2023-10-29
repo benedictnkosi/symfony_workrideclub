@@ -20,7 +20,11 @@ class CommuterController extends AbstractController
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('POST')) {
-            return new JsonResponse("Method Not Allowed", 405, array());
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
         }
 
         $response = $commuterApi->createCommuter($request);
@@ -30,6 +34,78 @@ class CommuterController extends AbstractController
         }else{
             return new JsonResponse($response, 201, array());
         }
+    }
+
+    /**
+     * @Route("api/commuters/{type}")
+     */
+    public function getCommuters($type, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->getAllCommuters($type);
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
+     * @Route("api/matches")
+     */
+    public function getMatches(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->getAllMatches();
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
+     * @Route("api/commuters/match/{id}")
+     */
+    public function matchCommuter($id, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->matchCommuter($id);
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
+     * @Route("api/commuters/unmatch/{id}")
+     */
+    public function unMatchCommuter($id, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->unmatchCommuter($id);
+        return new JsonResponse($response, 200, array());
     }
 
 }

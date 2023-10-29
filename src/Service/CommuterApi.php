@@ -2,15 +2,16 @@
 
 namespace App\Service;
 
-use App\Entity\Address;
 use App\Entity\Commuter;
 use App\Entity\CommuterAddress;
-use App\Entity\Units;
+use App\Entity\CommuterMatch;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
+use JMS\Serializer\SerializerBuilder;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+
 
 class CommuterApi extends AbstractController
 {
@@ -24,6 +25,7 @@ class CommuterApi extends AbstractController
         $this->logger = $logger;
     }
 
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
     public function createCommuter(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -34,7 +36,7 @@ class CommuterApi extends AbstractController
             $this->logger->info("name: " . $parameters["name"]);
 
             $existingCommuter = $this->em->getRepository(Commuter::class)->findOneBy(array('email' => $parameters["email"]));
-            if($existingCommuter !== null){
+            if ($existingCommuter !== null) {
                 return array(
                     'message' => "Email already exists",
                     'code' => "R01"
@@ -47,7 +49,7 @@ class CommuterApi extends AbstractController
             $homeAddress->setState($parameters["home_address_state"]);
             $homeAddress->setLatitude($parameters["home_address_lat"]);
             $homeAddress->setLongitude($parameters["home_address_long"]);
-            $homeAddress->setType("home")   ;
+            $homeAddress->setType("home");
             $homeAddress->SetCountry($parameters["country"]);
             $this->em->persist($homeAddress);
             $this->em->flush();
@@ -67,6 +69,9 @@ class CommuterApi extends AbstractController
 
             $this->logger->info("Work address created " . $workAddress->getId());
 
+            //get driver travel time
+            $travelTime = $this->calculateDriverTravelTime($parameters["home_address_lat"], $parameters["home_address_long"], $parameters["work_address_lat"], $parameters["work_address_long"]);
+
             $commuter = new Commuter();
             $commuter->setName($parameters["name"]);
             $commuter->setEmail($parameters["email"]);
@@ -76,6 +81,7 @@ class CommuterApi extends AbstractController
             $commuter->setWorkAddress($workAddress);
             $commuter->setStatus("active");
             $commuter->setType($parameters["type"]);
+            $commuter->setTravelTime($travelTime["time"]);
             $this->em->persist($commuter);
             $this->em->flush();
 
@@ -93,4 +99,268 @@ class CommuterApi extends AbstractController
             );
         }
     }
+
+
+    public function getAllCommuters($type): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => "active", 'type' => $type));
+            if (sizeof($commuters) == 0) {
+                return array(
+                    'message' => "No commuters found",
+                    'code' => "R01"
+                );
+            }
+
+            $serializer = SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($commuters, 'json');
+
+            return array(
+                'message' => "commuters found",
+                'code' => "R00",
+                'commuters' => $jsonContent
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error creating commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuterS",
+                'code' => "R01"
+            );
+        }
+    }
+
+    public function matchCommuter($id): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $currentCommuter = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => $id));
+            if ($currentCommuter == null) {
+                return array(
+                    'message' => "commuter found",
+                    'code' => "R01"
+                );
+            }
+
+            $type = "passenger";
+            if ($currentCommuter->getType() == "passenger") {
+                $type = "driver";
+            }
+
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => "active", 'type' => $type));
+            if (sizeof($commuters) == 0) {
+                return array(
+                    'message' => "No commuters found",
+                    'code' => "R01"
+                );
+            }
+
+            $travelTime = 0;
+            foreach ($commuters as $commuter) {
+                $this->logger->info("commuter found: " . $commuter->getId());
+                $driver = $currentCommuter->getType() == "driver" ? $currentCommuter : $commuter;
+                $passenger = $currentCommuter->getType() == "passenger" ? $currentCommuter : $commuter;
+
+                $travelTimeResponse = $this->calculateTravelTime($driver->getHomeAddress(), $passenger->getHomeAddress(), $passenger->getWorkAddress(), $driver->getWorkAddress(), $currentCommuter->getType() == "driver");
+
+                //write to database
+                $commuterMatch = new CommuterMatch();
+                $commuterMatch->setDriver($currentCommuter->getType() == "driver" ? $currentCommuter : $commuter);
+                $commuterMatch->setPassenger($currentCommuter->getType() == "passenger" ? $currentCommuter : $commuter);
+                $commuterMatch->setTotalTrip($travelTimeResponse["time"]);
+                $commuterMatch->setDistanceHome($travelTimeResponse["driverHomeToPassengerHomeDistance"]);
+                $commuterMatch->setDistanceWork($travelTimeResponse["passengerWorkToDriverDistance"]);
+                $commuterMatch->setDurationHome($travelTimeResponse["driverHomeToPassengerHomeTime"]);
+                $commuterMatch->setDurationWork($travelTimeResponse["passengerWorkToDriverTime"]);
+
+                if ($currentCommuter->getType() == "passenger") {
+                    $driverTravelTime = $commuter->getTravelTime();
+                }else{
+                    $driverTravelTime = $currentCommuter->getTravelTime();
+                }
+
+                $commuterMatch->setAdditionalTime($travelTimeResponse["time"] - $driverTravelTime );
+                $commuterMatch->setStatus("active");
+                $commuterMatch->setDriverStatus("pending");
+                $commuterMatch->setPassengerStatus("pending");
+
+                $this->em->persist($commuterMatch);
+                $this->em->flush();
+
+            }
+            return array(
+                'message' => "Successfully matched commuters",
+                'code' => "R00"
+            );
+
+        } catch (\Exception $e) {
+            $this->logger->error("Error creating commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuters",
+                'code' => "R01"
+            );
+        }
+    }
+
+    public function unmatchCommuter($id): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $currentCommuter = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => $id));
+            if ($currentCommuter == null) {
+                return array(
+                    'message' => "commuter not found",
+                    'code' => "R01"
+                );
+            }
+
+            $type = "passenger";
+            if ($currentCommuter->getType() == "passenger") {
+                $matches = $this->em->getRepository(CommuterMatch::class)->findBy(array('passenger' => $currentCommuter->getId()));
+            }else{
+                $matches = $this->em->getRepository(CommuterMatch::class)->findBy(array('driver' => $currentCommuter->getId()));
+            }
+
+            if (sizeof($matches) == 0) {
+                return array(
+                    'message' => "No matches found",
+                    'code' => "R01"
+                );
+            }
+
+
+            foreach ($matches as $match) {
+                $this->logger->info("commuter found: " . $match->getId());
+
+                $this->em->remove($match);
+                $this->em->flush();
+
+            }
+
+            return array(
+                'message' => "Removed all matches",
+                'code' => "R00"
+            );
+
+
+        } catch (\Exception $e) {
+            $this->logger->error("Error creating commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuters",
+                'code' => "R01"
+            );
+        }
+    }
+
+    function calculateTravelTime(CommuterAddress $driverHome,CommuterAddress $passengerHome,CommuterAddress $passengerWork,CommuterAddress $driverWork, $isDriver): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $origin = $driverHome->getLatitude() . "," . $driverHome->getLongitude();
+        $destination = $driverWork->getLatitude() . "," . $driverWork->getLongitude();
+        $waypoints = $passengerHome->getLatitude() . "," . $passengerHome->getLongitude() . "|" . $passengerWork->getLatitude() . "," . $passengerWork->getLongitude();
+        $mapLink = 'https://www.google.com/maps/dir/' . $origin . '/' . $passengerHome->getLatitude() . "," . $passengerHome->getLongitude() . '/' . $passengerWork->getLatitude() . "," . $passengerWork->getLongitude() . '/' . $destination;
+
+        $url = "https://maps.googleapis.com/maps/api/directions/json?origin=" . $origin . "&destination=" . $destination . "&waypoints=" . $waypoints . "&key=" . $_ENV['GOOGLE_API_KEY'] . "&travelMode=driving";
+        $this->logger->debug("google api url: " . $url);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $responseData = curl_exec($ch);
+        curl_close($ch);
+
+        $this->logger->debug("response: " . $responseData);
+
+        $response_a = json_decode($responseData, true);
+        // Extract the "legs" array from the response
+
+// Loop through each step in the legs
+        $legs = $response_a['routes'][0]['legs'];
+        $totalTravelTimeMinutes = 0;
+        $totalTravelDistance = 0;
+        foreach ($legs as $leg) {
+            $distance = $leg['distance']['value'];
+            $duration = $leg['duration']['value'];
+            $totalTravelTimeMinutes += $duration;
+            $totalTravelDistance += $distance;
+        }
+
+        return array(
+            'time' => $totalTravelTimeMinutes / 60,
+            'driverHomeToPassengerHomeDistance' => $legs[0]['distance']['value'] / 1000,
+            'passengerWorkToDriverDistance' => $legs[2]['distance']['value'] / 1000,
+            'driverHomeToPassengerHomeTime' => $legs[0]['duration']['value'] / 60,
+            'passengerWorkToDriverTime' => $legs[2]['duration']['value'] / 60,
+            'distance' => $totalTravelDistance / 1000,
+            'map_link' => $mapLink);
+    }
+
+    function calculateDriverTravelTime($homeLat, $homeLong, $workLat, $workLong): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $origin = $homeLat . "," . $homeLong;
+        $destination = $workLat . "," . $workLong;
+
+        $url = "https://maps.googleapis.com/maps/api/directions/json?origin=" . $origin . "&destination=" . $destination . "&key=" . $_ENV['GOOGLE_API_KEY'] . "&travelMode=driving";
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $responseData = curl_exec($ch);
+        curl_close($ch);
+
+        $this->logger->debug("response: " . $responseData);
+
+        $response_a = json_decode($responseData, true);
+        // Extract the "legs" array from the response
+
+        // Loop through each step in the legs
+        $legs = $response_a['routes'][0]['legs'];
+        $totalTravelTimeMinutes = 0;
+        $totalTravelDistance = 0;
+        foreach ($legs as $leg) {
+            $distance = $leg['distance']['value'];
+            $duration = $leg['duration']['value'];
+            $totalTravelTimeMinutes += $duration;
+            $totalTravelDistance += $distance;
+        }
+
+        return array(
+            'time' => intval($totalTravelTimeMinutes / 60),
+            'distance' => intval($totalTravelDistance / 1000)
+        );
+    }
+
+    public function getAllMatches(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $matches = $this->em->getRepository(CommuterMatch::class)->findBy(array('status' => "active"));
+            if (sizeof($matches) == 0) {
+                return array(
+                    'message' => "No matches found",
+                    'code' => "R01"
+                );
+            }
+
+            $serializer = SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($matches, 'json');
+
+            return array(
+                'message' => "commuters found",
+                'code' => "R00",
+                'matches' => $jsonContent
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error finding matches " . $e->getMessage());
+            return array(
+                'message' => "Error getting matches",
+                'code' => "R01"
+            );
+        }
+    }
+
+
 }

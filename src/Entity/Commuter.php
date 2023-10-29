@@ -73,6 +73,14 @@ class Commuter
     private $type;
 
     /**
+     * @var int|null
+     *
+     * @ORM\Column(name="type", type="integer", length=11, nullable=true)
+     */
+    #[ORM\Column(type: "integer", length: 11, nullable: true)]
+    private ?int $travelTime;
+
+    /**
      * @var CommuterAddress
      *
      * @ORM\ManyToOne(targetEntity="CommuterAddress")
@@ -239,6 +247,23 @@ class Commuter
     {
         $this->workAddress = $workAddress;
     }
+
+    /**
+     * @return int|null
+     */
+    public function getTravelTime(): ?int
+    {
+        return $this->travelTime;
+    }
+
+    /**
+     * @param int|null $travelTime
+     */
+    public function setTravelTime(?int $travelTime): void
+    {
+        $this->travelTime = $travelTime;
+    }
+
 
 
 }

@@ -190,6 +190,19 @@ if (name === "latitude") {
 }
 
 let signup = () => {
+  //add a spinner to the input button to indicate loading has started. the button id is signu
+  // Get the button element
+  var button = document.getElementById("signup");
+
+  // Get the spinner element
+  var spinner = document.getElementById("spinner");
+
+  // Change the button text to the spinner text
+  button.value = "Please wait...";
+
+  // Show the spinner
+  spinner.style.display = "inline";
+
 //check if home address is selected
   // Check if the user's input is not empty
   if (address1Field.value.trim() === '') {
@@ -259,9 +272,12 @@ let signup = () => {
                   // Handle other status codes if needed
                   showToast(response.message);
               }
+      //remove spinner from button
+        $("#signup").html("Sign Up");
     },
     error: function (jqXHR, textStatus, errorThrown) {
         showToast("Request failed with status code: " + jqXHR.status);
+      button.value = "Register";
     }
   });
 };

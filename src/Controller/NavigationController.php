@@ -38,4 +38,12 @@ class NavigationController extends AbstractController
         return $this->render('thank-you.html');
     }
 
+    /**
+     * @Route("/admin", name="admin")
+     */
+    public function admin(LoggerInterface $logger): Response
+    {
+        return $this->render('admin_drivers.html');
+    }
+
 }
