@@ -149,7 +149,7 @@ class CommuterApi extends AbstractController
                 $type = "driver";
             }
 
-            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => "active", 'type' => $type));
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => "active", 'type' => $type, 'state' => $currentCommuter->getState()));
             if (sizeof($commuters) == 0) {
                 return array(
                     'message' => "No commuters found",
