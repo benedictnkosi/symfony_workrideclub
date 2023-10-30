@@ -1,13 +1,14 @@
 //on page load
 $(document).ready(function () {
-    getAlMatches();
+    getAlMatches(0);
 });
 
+let driverNames = [];
 
 
-let getAlMatches = () => {
+let getAlMatches = (driverName) => {
 
-  let url = "/api/matches";
+  let url = "/api/matches/" + driverName;
 
   $.ajax({
     url: url,
@@ -16,7 +17,11 @@ let getAlMatches = () => {
     success: function (response, textStatus, jqXHR) {
       //convert json string to json object
         let data = JSON.parse(response.matches);
+
         //loop through the data
+        //clear #commuters-tbody first
+        $('#commuters-tbody').html("");
+
         for (let i = 0; i < data.length; i++) {
             //create tr element and append to tbody with id commuters-tbody
             let tr = $('<tr/>');
@@ -32,7 +37,31 @@ let getAlMatches = () => {
             //add a link to update commuter
             tr.append("<td><a target='_blank' href='"+data[i].map_link+"'>Map</a></td>");
             $('#commuters-tbody').append(tr);
+
+            //add unique driver names to driverNames array
+            if(!driverNames.includes("<a class='dropdown-item' href='#' data-id='"+data[i].driver.id+"'>"+data[i].driver.name+"</a>")){
+                driverNames.push("<a class='dropdown-item' href='#' data-id='"+data[i].driver.id+"'>"+data[i].driver.name+"</a>" );
+            }
+
         }
+
+        //loop through driverNames array and append to select with id driver-ul <li><a class="dropdown-item" href="#">Action</a></li>
+        //on click, call getAlMatches with driver name as parameter
+        // check if $('#driver-ul') is empty first
+        if($('#driver-ul').html() === ""){
+            for (let i = 0; i < driverNames.length; i++) {
+                let li = $('<li/>');
+                li.append(driverNames[i]);
+                $('#driver-ul').append(li);
+
+                li.click(function(){
+                    // get attribute data-id and pass to getAlMatches
+                    let id = $(this).children().attr("data-id");
+                    getAlMatches(id);
+                });
+            }
+        }
+
 
         //add click event for class match-button us the data-id attribute to get the id of the commuter
         $(".match-button").click(function(){

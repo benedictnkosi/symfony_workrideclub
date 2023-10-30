@@ -337,19 +337,35 @@ class CommuterApi extends AbstractController
         );
     }
 
-    public function getAllMatches(): array
+    public function getAllMatches($driverId): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
         try {
-            $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
-                ->where('c.status = :status')
-                ->andWhere('c.additionalTime < :max_time')
-                ->orderBy('c.additionalTime', 'ASC')
-                ->setParameter('status', "active")
-                ->setParameter('max_time', $_ENV['MAX_ADDITIONAL_TIME'])
-                ->getQuery()
-                ->getResult();
+
+            if($driverId === '0'){
+                $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
+                    ->where('c.status = :status')
+                    ->andWhere('c.additionalTime < :max_time')
+                    ->orderBy('c.additionalTime', 'ASC')
+                    ->setParameter('status', "active")
+                    ->setParameter('max_time', $_ENV['MAX_ADDITIONAL_TIME'])
+                    ->getQuery()
+                    ->getResult();
+            }else{
+                $driver = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => intval($driverId)));
+                $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
+                    ->where('c.status = :status')
+                    ->andWhere('c.additionalTime < :max_time')
+                    ->andWhere('c.driver = :driverID')
+                    ->orderBy('c.additionalTime', 'ASC')
+                    ->setParameter('status', "active")
+                    ->setParameter('max_time', $_ENV['MAX_ADDITIONAL_TIME'])
+                    ->setParameter('driverID', $driver->getId())
+                    ->getQuery()
+                    ->getResult();
+            }
+
 
             if (sizeof($matches) == 0) {
                 return array(

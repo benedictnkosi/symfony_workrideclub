@@ -47,6 +47,7 @@ let getAllDrivers = () => {
     success: function (response, textStatus, jqXHR) {
       //convert json string to json object
         let data = JSON.parse(response.commuters);
+
         //loop through the data
         for (let i = 0; i < data.length; i++) {
             //create tr element and append to tbody with id commuters-tbody
@@ -79,7 +80,11 @@ let getAllDrivers = () => {
             tr.append("<td><button class='btn btn-primary unmatch-button' data-id='"+data[i].id+"'>Unmatch</button></td>");
 
             $('#commuters-tbody').append(tr);
+
+
         }
+
+
 
         //add click event for class match-button us the data-id attribute to get the id of the commuter
         $(".match-button").click(function(){

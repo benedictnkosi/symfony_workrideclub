@@ -55,9 +55,9 @@ class CommuterController extends AbstractController
     }
 
     /**
-     * @Route("api/matches")
+     * @Route("api/matches/{driverId}")
      */
-    public function getMatches(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    public function getMatches($driverId, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {
@@ -68,7 +68,7 @@ class CommuterController extends AbstractController
             return new JsonResponse($response, 405, array());
         }
 
-        $response = $commuterApi->getAllMatches();
+        $response = $commuterApi->getAllMatches($driverId);
         return new JsonResponse($response, 200, array());
     }
 
