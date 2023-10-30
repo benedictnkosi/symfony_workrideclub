@@ -164,7 +164,7 @@ class CommuterApi extends AbstractController
                 //check that the commuter is not matched
                 $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
                     ->where('c.driver = :driverId')
-                    ->andWhere('c.passenger < :passengerId')
+                    ->andWhere('c.passenger = :passengerId')
                     ->orderBy('c.additionalTime', 'ASC')
                     ->setParameter('driverId', $currentCommuter->getId())
                     ->setParameter('passengerId', $commuter->getId())
