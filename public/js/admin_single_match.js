@@ -33,8 +33,21 @@ let getMatch = () => {
         if(response.code.localeCompare("R00") === 0){
             let match = JSON.parse(response.match);
             //driver string
+            //if phone number start with zero, make it start with +27
+            if(match.driver.phone.startsWith("0")){
+                match.driver.phone = match.driver.phone.replace("0", "+27 ");
+            }
+
+            //if phone number start with 27, make it start with +27
+            if(match.driver.phone.startsWith("27")){
+                match.driver.phone = match.driver.phone.replace("27", "+27 ");
+            }
+
+            //remove spaces from number
+            match.driver.phone = match.driver.phone.replaceAll(" ", "");
+
             let driver = "Name: " +  match.driver.name
-                + "<br>Phone: " + match.driver.phone
+                + "<br>Phone: <a href='https://api.whatsapp.com/send?phone="+match.driver.phone+"&text=Hello'>" + match.driver.phone + "</a>"
                 + "<br>Email: " + match.driver.email
                 + "<br>Home Address: " + match.driver.home_address.full_address
                 + "<br>Work Address: " + match.driver.work_address.full_address
