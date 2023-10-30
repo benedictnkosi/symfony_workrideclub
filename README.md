@@ -97,25 +97,7 @@ migrating to server
 DATABASE_URL="mysql://aluvejsl_user:yo_BBm_QfDVe@127.0.0.1:3306/aluvejsl_aluveapp?serverVersion=mariadb-{slq_server_version}&charset=utf8mb4"
 500 error means that some files are missing. zip again and upload without any disk space error
 
-
-Flat File format
-Reservation ID (numbers) - 5 characters
-Room Name (string) - 36 characters
-Room Price (numbers) - 9 characters
-Check In Date (string) - 10 characters
-Check Out Date(string) - 10 characters
-Guest Name (string) - 36 characters
-Guest Phone Number (string) - 18 characters
-Origin (string) - 46 characters
-OriginURL (string) - 46 characters
-Uid (string) - 26 characters
-Additional Information (string) - 108 characters
-Received On (string) - 10 characters
-
-
-mysql commands
-mysql -u weavryovdc -p4IHPB33N35WC77KU$ -h hotelrunner-ete-server.mysql.database.azure.com hotelrunner-ete-database --ssl-ca=DigiCertGlobalRootCA.crt.pem
-source \home\user\Desktop\test.sql;
-
-deploying on Azure webapp
-https://azureossd.github.io/2022/04/22/PHP-Laravel-deploy-on-App-Service-Linux-copy/index.html
+SET FOREIGN_KEY_CHECKS=0;
+delete from commuter where id > 0;
+delete from commuter_match where id > 0;
+delete from commuter_address where id > 0;

@@ -76,9 +76,9 @@ class CommuterMatch
     /**
      * @var string|null
      *
-     * @ORM\Column(name="additional_time", type="string", length=45, nullable=true)
+     * @ORM\Column(name="additional_time", type="integer", length=45, nullable=true)
      */
-    #[ORM\Column(type: "string", length: 45, nullable: true)]
+    #[ORM\Column(type: "integer", length: 45, nullable: true)]
     private $additionalTime;
 
     /**
@@ -96,6 +96,14 @@ class CommuterMatch
      */
     #[ORM\Column(type: "string", length: 45, nullable: true)]
     private $passengerStatus;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="map_link", type="string", length=45, nullable=true)
+     */
+    #[ORM\Column(type: "string", length: 200, nullable: true)]
+    private $mapLink;
 
     /**
      * @var Commuter
@@ -217,6 +225,8 @@ class CommuterMatch
         $this->additionalTime = $additionalTime;
     }
 
+
+
     /**
      * @return string|null
      */
@@ -311,6 +321,22 @@ class CommuterMatch
     public function setDurationWork(?int $durationWork): void
     {
         $this->durationWork = $durationWork;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMapLink(): ?string
+    {
+        return $this->mapLink;
+    }
+
+    /**
+     * @param string|null $mapLink
+     */
+    public function setMapLink(?string $mapLink): void
+    {
+        $this->mapLink = $mapLink;
     }
 
 

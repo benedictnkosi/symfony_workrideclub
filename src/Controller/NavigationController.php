@@ -39,11 +39,19 @@ class NavigationController extends AbstractController
     }
 
     /**
-     * @Route("/admin", name="admin")
+     * @Route("/drivers", name="drivers")
      */
-    public function admin(LoggerInterface $logger): Response
+    public function drivers(LoggerInterface $logger): Response
     {
-        return $this->render('admin_drivers.html');
+        return $this->render('drivers.html');
+    }
+
+    /**
+     * @Route("/matched", name="matched")
+     */
+    public function matched(LoggerInterface $logger): Response
+    {
+        return $this->render('matched.html');
     }
 
 }

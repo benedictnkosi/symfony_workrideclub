@@ -149,7 +149,7 @@ class CommuterApi extends AbstractController
                 $type = "driver";
             }
 
-            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => "active", 'type' => $type, 'state' => $currentCommuter->getState()));
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => "active", 'type' => $type));
             if (sizeof($commuters) == 0) {
                 return array(
                     'message' => "No commuters found",
@@ -162,6 +162,11 @@ class CommuterApi extends AbstractController
                 $this->logger->info("commuter found: " . $commuter->getId());
                 $driver = $currentCommuter->getType() == "driver" ? $currentCommuter : $commuter;
                 $passenger = $currentCommuter->getType() == "passenger" ? $currentCommuter : $commuter;
+
+                //if driver and passenger states are not the same then skip
+                if ($driver->getHomeAddress()->getState() != $passenger->getHomeAddress()->getState()) {
+                    continue;
+                }
 
                 $travelTimeResponse = $this->calculateTravelTime($driver->getHomeAddress(), $passenger->getHomeAddress(), $passenger->getWorkAddress(), $driver->getWorkAddress(), $currentCommuter->getType() == "driver");
 
@@ -181,11 +186,11 @@ class CommuterApi extends AbstractController
                     $driverTravelTime = $currentCommuter->getTravelTime();
                 }
 
-                $commuterMatch->setAdditionalTime($travelTimeResponse["time"] - $driverTravelTime );
+                $commuterMatch->setAdditionalTime(intval($travelTimeResponse["time"] - $driverTravelTime ));
                 $commuterMatch->setStatus("active");
                 $commuterMatch->setDriverStatus("pending");
                 $commuterMatch->setPassengerStatus("pending");
-
+                $commuterMatch->setMapLink($travelTimeResponse["map_link"]);
                 $this->em->persist($commuterMatch);
                 $this->em->flush();
 
@@ -337,7 +342,15 @@ class CommuterApi extends AbstractController
         $this->logger->info("Starting Method: " . __METHOD__);
 
         try {
-            $matches = $this->em->getRepository(CommuterMatch::class)->findBy(array('status' => "active"));
+            $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
+                ->where('c.status = :status')
+                ->andWhere('c.additionalTime < :max_time')
+                ->orderBy('c.additionalTime', 'ASC')
+                ->setParameter('status', "active")
+                ->setParameter('max_time', $_ENV['MAX_ADDITIONAL_TIME'])
+                ->getQuery()
+                ->getResult();
+
             if (sizeof($matches) == 0) {
                 return array(
                     'message' => "No matches found",
