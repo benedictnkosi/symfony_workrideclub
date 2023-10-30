@@ -11,9 +11,12 @@ let matchCommuter = (id) => {
         type: "get",
         contentType: "application/json",
         success: function (response, textStatus, jqXHR) {
+            //remove spinners from buttons
+            $(".match-button").html("Match");
             showToast(response.message);
         },
         error: function (jqXHR, textStatus, errorThrown) {
+            $(".match-button").html("Match");
             showToast("Request failed with status code: " + jqXHR.status);
         }
     });
@@ -28,9 +31,12 @@ let unmatchCommuter = (id) => {
         contentType: "application/json",
         success: function (response, textStatus, jqXHR) {
             showToast(response.message);
+            //remove spinners from buttons
+            $(".unmatch-button").html("Unmatch");
         },
         error: function (jqXHR, textStatus, errorThrown) {
             showToast("Request failed with status code: " + jqXHR.status);
+            $(".unmatch-button").html("Unmatch");
         }
     });
 }
@@ -80,20 +86,22 @@ let getAllDrivers = () => {
             tr.append("<td><button class='btn btn-primary unmatch-button' data-id='"+data[i].id+"'>Unmatch</button></td>");
 
             $('#commuters-tbody').append(tr);
-
-
         }
 
 
 
         //add click event for class match-button us the data-id attribute to get the id of the commuter
-        $(".match-button").click(function(){
+        $(".match-button").click(function(event){
+            //get button from event and append spinner
+            $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
             let id = $(this).attr("data-id");
             matchCommuter(id);
         });
 
         //add click event for class unmatch-button us the data-id attribute to get the id of the commuter
-        $(".unmatch-button").click(function(){
+        $(".unmatch-button").click(function(event){
+            //get button from event and append spinner
+            $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
             let id = $(this).attr("data-id");
             unmatchCommuter(id);
         });

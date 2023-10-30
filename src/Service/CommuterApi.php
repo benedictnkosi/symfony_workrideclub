@@ -160,11 +160,27 @@ class CommuterApi extends AbstractController
             $travelTime = 0;
             foreach ($commuters as $commuter) {
                 $this->logger->info("commuter found: " . $commuter->getId());
+
+                //check that the commuter is not matched
+                $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
+                    ->where('c.driver = :driverId')
+                    ->andWhere('c.passenger < :passengerId')
+                    ->orderBy('c.additionalTime', 'ASC')
+                    ->setParameter('driverId', $currentCommuter->getId())
+                    ->setParameter('passengerId', $commuter->getId())
+                    ->getQuery()
+                    ->getResult();
+
+                if(sizeof($matches) > 0){
+                    $this->logger->info("Match found");
+                    continue;
+                }
                 $driver = $currentCommuter->getType() == "driver" ? $currentCommuter : $commuter;
                 $passenger = $currentCommuter->getType() == "passenger" ? $currentCommuter : $commuter;
 
                 //if driver and passenger states are not the same then skip
                 if ($driver->getHomeAddress()->getState() != $passenger->getHomeAddress()->getState()) {
+                    $this->logger->info("State not the same");
                     continue;
                 }
 
