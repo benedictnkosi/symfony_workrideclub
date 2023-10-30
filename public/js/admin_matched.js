@@ -25,17 +25,15 @@ let getAlMatches = (driverName) => {
         for (let i = 0; i < data.length; i++) {
             //create tr element and append to tbody with id commuters-tbody
             let tr = $('<tr/>');
-            tr.append("<td>" + data[i].driver.name + "</td>");
-            tr.append("<td>" + data[i].passenger.name + "</td>");
-            tr.append("<td>" + data[i].driver.home_address.full_address.replace(", South Africa", "") + "</td>");
+            tr.append("<td><a target='_blank' href='/match?id="+data[i].id+"'>" + data[i].driver.name + "</a></td>");
+            tr.append("<td><a target='_blank' href='/match?id="+data[i].id+"'>" + data[i].passenger.name + "</a></td>");
+            tr.append("<td><a target='_blank' href='"+data[i].map_link+"'>" + data[i].driver.home_address.full_address.replace(", South Africa", "") + "</a></td>");
             tr.append("<td>" + data[i].passenger.home_address.full_address.replace(", South Africa", "") + "</td>");
             tr.append("<td>" + data[i].driver.work_address.full_address.replace(", South Africa", "") + "</td>");
             tr.append("<td>" + data[i].passenger.work_address.full_address.replace(", South Africa", "") + "</td>");
             tr.append("<td>" + data[i].additional_time + "</td>");
             tr.append("<td>" + data[i].driver_status + "</td>");
             tr.append("<td>" + data[i].passenger_status + "</td>");
-            //add a link to update commuter
-            tr.append("<td><a target='_blank' href='"+data[i].map_link+"'>Map</a></td>");
             $('#commuters-tbody').append(tr);
 
             //add unique driver names to driverNames array

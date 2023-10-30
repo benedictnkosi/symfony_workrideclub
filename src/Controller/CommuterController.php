@@ -73,6 +73,43 @@ class CommuterController extends AbstractController
     }
 
     /**
+     * @Route("api/match/{id}")
+     */
+    public function getMatch($id, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->getMatch($id);
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
+     * @Route("api/update/match")
+     */
+    public function updateMatchStatus(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('PUT')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->updateMatchStatus($request);
+        return new JsonResponse($response, 200, array());
+    }
+
+
+    /**
      * @Route("api/commuters/match/{id}")
      */
     public function matchCommuter($id, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response

@@ -54,4 +54,11 @@ class NavigationController extends AbstractController
         return $this->render('matched.html');
     }
 
+    /**
+     * @Route("/match", name="match")
+     */
+    public function match(LoggerInterface $logger): Response
+    {
+        return $this->render('single_match.html');
+    }
 }

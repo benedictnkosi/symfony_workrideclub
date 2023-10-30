@@ -82,8 +82,8 @@ let getAllDrivers = () => {
             tr.append("<td>" + data[i].travel_time + "</td>");
 
             //append a button to tr
+            tr.append("<td><button class='btn btn-primary calc-button' data-id='"+data[i].id+"'>Travel Time</button></td>");
             tr.append("<td><button class='btn btn-primary match-button' data-id='"+data[i].id+"'>Match</button></td>");
-            tr.append("<td><button class='btn btn-primary unmatch-button' data-id='"+data[i].id+"'>Unmatch</button></td>");
 
             $('#commuters-tbody').append(tr);
         }
@@ -105,6 +105,7 @@ let getAllDrivers = () => {
             let id = $(this).attr("data-id");
             unmatchCommuter(id);
         });
+
 
     },
     error: function (jqXHR, textStatus, errorThrown) {

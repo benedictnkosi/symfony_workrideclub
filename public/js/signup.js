@@ -273,7 +273,7 @@ let signup = () => {
                   showToast(response.message);
               }
       //remove spinner from button
-        $("#signup").html("Sign Up");
+      button.value = "Register";
     },
     error: function (jqXHR, textStatus, errorThrown) {
         showToast("Request failed with status code: " + jqXHR.status);

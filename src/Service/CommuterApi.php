@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Commuter;
 use App\Entity\CommuterAddress;
 use App\Entity\CommuterMatch;
+use Cassandra\Date;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use JMS\Serializer\SerializerBuilder;
@@ -100,7 +101,6 @@ class CommuterApi extends AbstractController
         }
     }
 
-
     public function getAllCommuters($type): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -131,6 +131,7 @@ class CommuterApi extends AbstractController
         }
     }
 
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
     public function matchCommuter($id): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -225,6 +226,7 @@ class CommuterApi extends AbstractController
         }
     }
 
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
     public function unmatchCommuter($id): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -276,7 +278,8 @@ class CommuterApi extends AbstractController
         }
     }
 
-    function calculateTravelTime(CommuterAddress $driverHome,CommuterAddress $passengerHome,CommuterAddress $passengerWork,CommuterAddress $driverWork, $isDriver): array
+    #[ArrayShape(['time' => "float|int", 'driverHomeToPassengerHomeDistance' => "float|int", 'passengerWorkToDriverDistance' => "float|int", 'driverHomeToPassengerHomeTime' => "float|int", 'passengerWorkToDriverTime' => "float|int", 'distance' => "float|int", 'map_link' => "string"])]
+    function calculateTravelTime(CommuterAddress $driverHome, CommuterAddress $passengerHome, CommuterAddress $passengerWork, CommuterAddress $driverWork, $isDriver): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         $origin = $driverHome->getLatitude() . "," . $driverHome->getLongitude();
@@ -284,7 +287,8 @@ class CommuterApi extends AbstractController
         $waypoints = $passengerHome->getLatitude() . "," . $passengerHome->getLongitude() . "|" . $passengerWork->getLatitude() . "," . $passengerWork->getLongitude();
         $mapLink = 'https://www.google.com/maps/dir/' . $origin . '/' . $passengerHome->getLatitude() . "," . $passengerHome->getLongitude() . '/' . $passengerWork->getLatitude() . "," . $passengerWork->getLongitude() . '/' . $destination;
 
-        $url = "https://maps.googleapis.com/maps/api/directions/json?origin=" . $origin . "&destination=" . $destination . "&waypoints=" . $waypoints . "&key=" . $_ENV['GOOGLE_API_KEY'] . "&travelMode=driving";
+
+        $url = "https://maps.googleapis.com/maps/api/directions/json?origin=" . $origin . "&destination=" . $destination . "&waypoints=" . $waypoints . "&key=" . $_ENV['GOOGLE_API_KEY'] . "&travelMode=driving&departure_time=" . $nextMonday . "&traffic_model=best_guess";
         $this->logger->debug("google api url: " . $url);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -318,13 +322,14 @@ class CommuterApi extends AbstractController
             'map_link' => $mapLink);
     }
 
+    #[ArrayShape(['time' => "int", 'distance' => "int"])]
     function calculateDriverTravelTime($homeLat, $homeLong, $workLat, $workLong): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         $origin = $homeLat . "," . $homeLong;
         $destination = $workLat . "," . $workLong;
 
-        $url = "https://maps.googleapis.com/maps/api/directions/json?origin=" . $origin . "&destination=" . $destination . "&key=" . $_ENV['GOOGLE_API_KEY'] . "&travelMode=driving";
+        $url = "https://maps.googleapis.com/maps/api/directions/json?origin=" . $origin . "&destination=" . $destination . "&key=" . $_ENV['GOOGLE_API_KEY'] .  "&travelMode=driving";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -407,5 +412,78 @@ class CommuterApi extends AbstractController
         }
     }
 
+    public function getMatch($id): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
 
+        try {
+
+
+            $match = $this->em->getRepository(CommuterMatch::class)->findOneBy(array('id' => intval($id)));
+
+            if ($match == null) {
+                return array(
+                    'message' => "Match found",
+                    'code' => "R01"
+                );
+            }
+
+            $serializer = SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($match, 'json');
+
+            return array(
+                'message' => "commuter found",
+                'code' => "R00",
+                'match' => $jsonContent
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error finding match " . $e->getMessage());
+            return array(
+                'message' => "Error getting match",
+                'code' => "R01"
+            );
+        }
+    }
+
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
+    public function updateMatchStatus($request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $parameters = json_decode($request->getContent(), true);
+
+            $match = $this->em->getRepository(CommuterMatch::class)->findOneBy(array('id' => intval($parameters["id"])));
+
+            if ($match == null) {
+                return array(
+                    'message' => "Match found",
+                    'code' => "R01"
+                );
+            }
+
+            if($parameters["commuter_type"] == "driver"){
+                $match->setDriverStatus($parameters["status"]);
+            }else if($parameters["commuter_type"] == "passenger"){
+                $match->setPassengerStatus($parameters["status"]);
+            }else {
+                $match->setStatus($parameters["status"]);
+            }
+
+            //flush
+            $this->em->persist($match);
+            $this->em->flush();
+
+            return array(
+                'message' => "Status updated",
+                'code' => "R00"
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error finding match " . $e->getMessage());
+            return array(
+                'message' => "Error getting match",
+                'code' => "R01"
+            );
+        }
+    }
 }
