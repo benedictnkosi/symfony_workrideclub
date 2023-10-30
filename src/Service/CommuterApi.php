@@ -172,7 +172,7 @@ class CommuterApi extends AbstractController
                     ->getResult();
 
                 if(sizeof($matches) > 0){
-                    $this->logger->info("Match found");
+                    $this->logger->info("Match found - " . $commuter->getName() . " - " . $currentCommuter->getName());
                     continue;
                 }
                 $driver = $currentCommuter->getType() == "driver" ? $currentCommuter : $commuter;
