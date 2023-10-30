@@ -72,6 +72,7 @@ let getAllDrivers = () => {
             let work_address_array_sliced = work_address_array.slice(0, work_address_array_length_minus_one);
             let work_address_array_sliced_joined = work_address_array_sliced.join(",");
             tr.append("<td>" + work_address_array_sliced_joined + "</td>");
+            tr.append("<td>" + data[i].travel_time + "</td>");
 
             //append a button to tr
             tr.append("<td><button class='btn btn-primary match-button' data-id='"+data[i].id+"'>Match</button></td>");
