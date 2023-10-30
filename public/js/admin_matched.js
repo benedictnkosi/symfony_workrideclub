@@ -30,7 +30,7 @@ let getAlMatches = () => {
             tr.append("<td>" + data[i].driver_status + "</td>");
             tr.append("<td>" + data[i].passenger_status + "</td>");
             //add a link to update commuter
-            tr.append("<td><a href='"+data[i].map_link+"'>Map</a></td>");
+            tr.append("<td><a target='_blank' href='"+data[i].map_link+"'>Map</a></td>");
             $('#commuters-tbody').append(tr);
         }
 
