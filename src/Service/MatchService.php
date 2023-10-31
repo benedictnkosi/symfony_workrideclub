@@ -230,7 +230,7 @@ class MatchService
 
         try {
 
-            if($driverId === 'all'){
+            if($driverId === '0'){
                 $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
                     ->where('c.status = :status')
                     ->andWhere('c.additionalTime < :max_time')
