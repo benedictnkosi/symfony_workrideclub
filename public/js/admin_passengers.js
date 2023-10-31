@@ -23,6 +23,7 @@ let getAllPassengers = () => {
             tr.append("<td>" + data[i].id + "</td>");
             tr.append("<td>" + data[i].created.replace("+02:00","") + "</td>");
             tr.append("<td>" + data[i].name + "</td>");
+            data[i].phone = formatPhoneNumber(data[i].phone);
             tr.append("<td><a href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=Hello " + data[i].name + "'>" + data[i].phone + "</a></td>");
 
             //remove text after the last comma from data[i].home_address.full_address
@@ -58,6 +59,22 @@ let getAllPassengers = () => {
   });
 };
 
+
+let formatPhoneNumber = (phoneNumberString) => {
+    //if phone number start with zero, make it start with +27
+    if(phoneNumberString.startsWith("0")){
+        phoneNumberString = phoneNumberString.replace("0", "+27 ");
+    }
+
+    //if phone number start with 27, make it start with +27
+    if(phoneNumberString.startsWith("27")){
+        phoneNumberString = phoneNumberString.replace("27", "+27 ");
+    }
+
+    //remove spaces from number
+    phoneNumberString = phoneNumberString.replaceAll(" ", "");
+    return phoneNumberString;
+}
 
 let showToast = (message) =>{
     const liveToast = document.getElementById('liveToast')

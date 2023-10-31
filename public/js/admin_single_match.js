@@ -33,19 +33,8 @@ let getMatch = () => {
         if(response.code.localeCompare("R00") === 0){
             let match = JSON.parse(response.match);
             //driver string
-            //if phone number start with zero, make it start with +27
-            if(match.driver.phone.startsWith("0")){
-                match.driver.phone = match.driver.phone.replace("0", "+27 ");
-            }
 
-            //if phone number start with 27, make it start with +27
-            if(match.driver.phone.startsWith("27")){
-                match.driver.phone = match.driver.phone.replace("27", "+27 ");
-            }
-
-            //remove spaces from number
-            match.driver.phone = match.driver.phone.replaceAll(" ", "");
-
+            match.driver.phone = formatPhoneNumber(match.driver.phone);
             let driver = "Name: " +  match.driver.name
                 + "<br>Phone: <a href='https://api.whatsapp.com/send?phone="+match.driver.phone+"&text=Hello " +match.driver.name + ", We found a match for your daily commute. WorkRide.co.za'>" + match.driver.phone + "</a>"
                 + "<br>Email: " + match.driver.email
@@ -53,6 +42,8 @@ let getMatch = () => {
                 + "<br>Work Address: " + match.driver.work_address.full_address
                 + "<br>Status: " + match.driver_status;
             $('#driver-details').html(driver);
+
+            match.passenger.phone = formatPhoneNumber(match.passenger.phone);
 
             let passenger = "Name: " +  match.passenger.name
                 + "<br>Phone: <a href='https://api.whatsapp.com/send?phone="+match.passenger.phone+"&text=Hello " +match.passenger.name + ", We found a lift club for you. WorkRide.co.za'>" + match.passenger.phone + "</a>"
@@ -81,6 +72,7 @@ let getMatch = () => {
   });
 };
 
+
 let updateStatus = (commuterType, status) => {
     let myUrl = window.location.href;
     let id = myUrl.substring(myUrl.lastIndexOf('=') + 1);
@@ -106,6 +98,23 @@ let updateStatus = (commuterType, status) => {
         }
     });
 };
+
+
+let formatPhoneNumber = (phoneNumberString) => {
+    //if phone number start with zero, make it start with +27
+    if(phoneNumberString.startsWith("0")){
+        phoneNumberString = phoneNumberString.replace("0", "+27 ");
+    }
+
+    //if phone number start with 27, make it start with +27
+    if(phoneNumberString.startsWith("27")){
+        phoneNumberString = phoneNumberString.replace("27", "+27 ");
+    }
+
+    //remove spaces from number
+    phoneNumberString = phoneNumberString.replaceAll(" ", "");
+    return phoneNumberString;
+}
 
 let showToast = (message) =>{
     const liveToast = document.getElementById('liveToast')
