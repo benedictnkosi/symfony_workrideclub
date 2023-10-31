@@ -37,7 +37,6 @@ let getMatch = () => {
             match.driver.phone = formatPhoneNumber(match.driver.phone);
             let driver = "Name: " +  match.driver.name
                 + "<br>Phone: <a href='https://api.whatsapp.com/send?phone="+match.driver.phone+"&text=Hello " +match.driver.name + ", We found a match for your daily commute. WorkRide.co.za'>" + match.driver.phone + "</a>"
-                + "<br>Email: " + match.driver.email
                 + "<br>Home Address: " + match.driver.home_address.full_address
                 + "<br>Work Address: " + match.driver.work_address.full_address
                 + "<br>Status: " + match.driver_status;
@@ -47,7 +46,6 @@ let getMatch = () => {
 
             let passenger = "Name: " +  match.passenger.name
                 + "<br>Phone: <a href='https://api.whatsapp.com/send?phone="+match.passenger.phone+"&text=Hello " +match.passenger.name + ", We found a lift club for you. WorkRide.co.za'>" + match.passenger.phone + "</a>"
-                + "<br>Email: " + match.passenger.email
                 + "<br>Home Address: " + match.passenger.home_address.full_address
                 + "<br>Work Address: " + match.passenger.work_address.full_address
                 + "<br>Status: " + match.passenger_status;

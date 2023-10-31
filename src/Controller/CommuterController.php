@@ -72,4 +72,22 @@ class CommuterController extends AbstractController
         $response = $commuterApi->updateDriverStatus($request);
         return new JsonResponse($response, 200, array());
     }
+
+    /**
+     * @Route("api/stats/new_commuters/{driver}/{days}")
+     */
+    public function getCommutersJoinedCount($driver, $days, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->getJoinedLastDays($driver, $days);
+        return new JsonResponse($response, 200, array());
+    }
 }

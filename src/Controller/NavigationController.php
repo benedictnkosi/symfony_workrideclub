@@ -63,6 +63,14 @@ class NavigationController extends AbstractController
     }
 
     /**
+     * @Route("/dashboard0242ac120002", name="dashboard")
+     */
+    public function dashboard(LoggerInterface $logger): Response
+    {
+        return $this->render('dashboard.html');
+    }
+
+    /**
      * @Route("/match", name="match")
      */
     public function match(LoggerInterface $logger): Response

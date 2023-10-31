@@ -36,10 +36,10 @@ class CommuterApi extends AbstractController
 
             $this->logger->info("name: " . $parameters["name"]);
 
-            $existingCommuter = $this->em->getRepository(Commuter::class)->findOneBy(array('email' => $parameters["email"]));
+            $existingCommuter = $this->em->getRepository(Commuter::class)->findOneBy(array('phone' => $parameters["phone"]));
             if ($existingCommuter !== null) {
                 return array(
-                    'message' => "Email already exists",
+                    'message' => "Phone number already exists",
                     'code' => "R01"
                 );
             }
@@ -75,7 +75,6 @@ class CommuterApi extends AbstractController
 
             $commuter = new Commuter();
             $commuter->setName($parameters["name"]);
-            $commuter->setEmail($parameters["email"]);
             $commuter->setPhone($parameters["phone"]);
             $commuter->setCreated(new \DateTime());
             $commuter->setHomeAddress($homeAddress);
@@ -203,5 +202,36 @@ class CommuterApi extends AbstractController
             );
         }
     }
+
+    public function getJoinedLastDays($type, $days): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            //create date object for $days ago at midnight
+            $date = new \DateTime();
+            $date->modify('-' . $days . ' day');
+            $date->setTime(0, 0, 0);
+
+            $commuters = $this->em->getRepository("App\Entity\Commuter")->createQueryBuilder('c')
+                ->where('c.created > :date')
+                ->andWhere('c.type = :type')
+                ->setParameter('date', $date)
+                ->setParameter('type', $type)
+                ->getQuery()
+                ->getResult();
+            return array(
+                'count' => sizeof($commuters),
+                'code' => "R00"
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error creating commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuters",
+                'code' => "R01"
+            );
+        }
+    }
+
 
 }

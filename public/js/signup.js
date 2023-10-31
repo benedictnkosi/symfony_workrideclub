@@ -28,11 +28,6 @@ $(document).ready(function () {
         required: true,
         maxlength: 20,
       },
-      email: {
-        email: true,
-        required: true,
-        maxlength: 50,
-      },
       home_address: {
         required: true,
         maxlength: 200,
@@ -212,7 +207,7 @@ let signup = () => {
 
   const name = $("#name").val().trim();
   const phone = $("#phone-number").val().trim();
-  const email = $("#email-address").val().trim();
+
   const home_address = address1Field.value;
   const home_suburb = getHomePlacesElement("suburb");
   const home_address_city = getHomePlacesElement("city");
@@ -234,7 +229,6 @@ let signup = () => {
   const data = {
     name: name,
     phone: phone,
-    email: email,
     type: commuterType,
 
     home_address: home_address,
