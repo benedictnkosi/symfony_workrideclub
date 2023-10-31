@@ -190,18 +190,7 @@ if (name === "latitude") {
 }
 
 let signup = () => {
-  //add a spinner to the input button to indicate loading has started. the button id is signu
-  // Get the button element
-  var button = document.getElementById("signup");
 
-  // Get the spinner element
-  var spinner = document.getElementById("spinner");
-
-  // Change the button text to the spinner text
-  button.value = "Please wait...";
-
-  // Show the spinner
-  spinner.style.display = "inline";
 
 //check if home address is selected
   // Check if the user's input is not empty
@@ -214,6 +203,12 @@ let signup = () => {
     showToast("Please enter work address");
     return;
   }
+
+  //check if radio button is selected with name commuterType
+    if (!$("input[name='commuterType']:checked").val()) {
+        showToast("Please select commuter type");
+        return;
+    }
 
   const name = $("#name").val().trim();
   const phone = $("#phone-number").val().trim();
@@ -257,6 +252,19 @@ let signup = () => {
     work_city: work_city,
     work_suburb: work_suburb
   };
+
+  //add a spinner to the input button to indicate loading has started. the button id is signu
+  // Get the button element
+  var button = document.getElementById("signup");
+
+  // Get the spinner element
+  var spinner = document.getElementById("spinner");
+
+  // Change the button text to the spinner text
+  button.value = "Please wait...";
+
+  // Show the spinner
+  spinner.style.display = "inline";
 
   $.ajax({
     url: url,
