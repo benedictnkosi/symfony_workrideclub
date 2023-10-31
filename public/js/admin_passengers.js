@@ -49,6 +49,32 @@ let getAllPassengers = () => {
                 tr.append("<td>Not matched</td>");
             }
 
+            //append a select with id driver-status
+            let select = $('<select/>');
+            select.attr("id", "passenger-status");
+            select.append("<option value=''>Select</option>");
+            select.append("<option value='active'>Active</option>");
+            select.append("<option value='unavailable'>Unavailable</option>");
+
+            //set the selected option
+            if(data[i].status === "active"){
+                select.val("active");
+            }else if(data[i].status === "unavailable"){
+                select.val("unavailable");
+            }
+
+            //select change call the updateDriverStatus function
+            select.change(function(){
+                let status = $(this).val();
+                updatePassengerStatus(data[i].id, status);
+            });
+
+            //append to tr
+            let td = $('<td/>');
+            td.append(select);
+            tr.append(td);
+
+
             tr.append("<td>" + data[i].status + "</td>");
             tr.append("<td>" + data[i].travel_time + "</td>");
 
@@ -59,6 +85,27 @@ let getAllPassengers = () => {
         showToast("Request failed with status code: " + jqXHR.status);
     }
   });
+};
+
+let updatePassengerStatus = (id, status) => {
+    let url = "/api/update/commuter/status";
+    const data = {
+        id: id,
+        status: status
+    };
+
+    $.ajax({
+        url: url,
+        type: "put",
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        success: function (response, textStatus, jqXHR) {
+            showToast(response.message);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            showToast("Request failed with status code: " + jqXHR.status);
+        }
+    });
 };
 
 

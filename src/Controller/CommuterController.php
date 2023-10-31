@@ -56,7 +56,7 @@ class CommuterController extends AbstractController
     }
 
     /**
-     * @Route("api/update/driver/status")
+     * @Route("api/update/commuter/status")
      */
     public function updateDriverStatus(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {

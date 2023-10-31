@@ -189,7 +189,7 @@ let formatPhoneNumber = (phoneNumberString) => {
 }
 
 let updateDriverStatus = (id, status) => {
-    let url = "/api/update/driver/status";
+    let url = "/api/update/commuter/status";
     const data = {
         id: id,
         status: status
@@ -200,9 +200,8 @@ let updateDriverStatus = (id, status) => {
         type: "put",
         contentType: "application/json",
         data: JSON.stringify(data),
-        success: function (response, textStatus, jqXHR) {
+        success: function (response, textStatus , jqXHR) {
             showToast(response.message);
-            getMatch();
         },
         error: function (jqXHR, textStatus, errorThrown) {
             showToast("Request failed with status code: " + jqXHR.status);

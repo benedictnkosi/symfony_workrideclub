@@ -106,7 +106,7 @@ class CommuterApi extends AbstractController
         $this->logger->info("Starting Method: " . __METHOD__);
 
         try {
-            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => "active", 'type' => $type), array('created' => 'DESC'));
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('type' => $type), array('created' => 'DESC'));
             if (sizeof($commuters) == 0) {
                 return array(
                     'message' => "No commuters found",
