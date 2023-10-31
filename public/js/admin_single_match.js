@@ -38,7 +38,7 @@ let getMatch = () => {
             let driver = "Name: " +  match.driver.name;
             if(!validURL(match.driver.phone)){
                 match.driver.phone = formatPhoneNumber(match.driver.phone);
-                driver += "<br>Phone Number: <a target='_blank'  href='https://api.whatsapp.com/send?phone="+match.driver.phone+"&text=Hello " + data[i].name + "'>" + match.driver.phone + "</a>";
+                driver += "<br>Phone Number: <a target='_blank'  href='https://api.whatsapp.com/send?phone="+match.driver.phone+"&text=Hello " +match.driver.phone + "'>" + match.driver.phone + "</a>";
             }else{
                 driver += "<br> <a target='_blank'  href='"+match.driver.phone+"'>Facebook Chat</a>";
             }
