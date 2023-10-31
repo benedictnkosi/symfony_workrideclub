@@ -39,7 +39,7 @@ class NavigationController extends AbstractController
     }
 
     /**
-     * @Route("/drivers", name="drivers")
+     * @Route("/drivers0242ac120002", name="drivers")
      */
     public function drivers(LoggerInterface $logger): Response
     {
@@ -47,7 +47,7 @@ class NavigationController extends AbstractController
     }
 
     /**
-     * @Route("/passengers", name="passengers")
+     * @Route("/passengers0242ac120002", name="passengers")
      */
     public function passengers(LoggerInterface $logger): Response
     {
@@ -55,7 +55,7 @@ class NavigationController extends AbstractController
     }
 
     /**
-     * @Route("/matched", name="matched")
+     * @Route("/matched0242ac120002", name="matched")
      */
     public function matched(LoggerInterface $logger): Response
     {
