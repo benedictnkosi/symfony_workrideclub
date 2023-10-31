@@ -90,4 +90,22 @@ class CommuterController extends AbstractController
         $response = $commuterApi->getJoinedLastDays($driver, $days);
         return new JsonResponse($response, 200, array());
     }
+
+    /**
+     * @Route("api/stats/fb/new_commuters/{driver}/{days}")
+     */
+    public function getFBCommutersJoinedCount($driver, $days, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->getFBJoinedLastDays($driver, $days);
+        return new JsonResponse($response, 200, array());
+    }
 }
