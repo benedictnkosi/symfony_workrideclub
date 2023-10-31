@@ -84,6 +84,9 @@ class CommuterApi extends AbstractController
             $commuter->setStatus("active");
             $commuter->setType($parameters["type"]);
             $commuter->setTravelTime($travelTime["time"]);
+            $commuter->setWorkDeparture($parameters["work_departure_time"]);
+            $commuter->setHomeDeparture($parameters["home_departure_time"]);
+            $commuter->setFuel($parameters["fuel_contribution"]);
             $this->em->persist($commuter);
             $this->em->flush();
 

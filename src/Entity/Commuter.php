@@ -49,6 +49,30 @@ class Commuter
     private $phone;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(name="work_departure", type="string", length=45, nullable=true)
+     */
+
+    #[ORM\Column(type: "string", length: 10, nullable: true)]
+    private $workDeparture;
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="work_departure", type="string", length=10, nullable=true)
+     */
+    #[ORM\Column(type: "string", length: 10, nullable: true)]
+    private $homeDeparture;
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="fuel", type="string", length=10, nullable=true)
+     */
+    #[ORM\Column(type: "string", length: 10, nullable: true)]
+    private $fuel;
+
+    /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="created", type="datetime", nullable=true)
@@ -286,6 +310,54 @@ class Commuter
     public function setLastMatch(?\DateTime $lastMatch): void
     {
         $this->lastMatch = $lastMatch;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getWorkDeparture(): ?string
+    {
+        return $this->workDeparture;
+    }
+
+    /**
+     * @param string|null $workDeparture
+     */
+    public function setWorkDeparture(?string $workDeparture): void
+    {
+        $this->workDeparture = $workDeparture;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getHomeDeparture(): ?string
+    {
+        return $this->homeDeparture;
+    }
+
+    /**
+     * @param string|null $homeDeparture
+     */
+    public function setHomeDeparture(?string $homeDeparture): void
+    {
+        $this->homeDeparture = $homeDeparture;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFuel(): ?string
+    {
+        return $this->fuel;
+    }
+
+    /**
+     * @param string|null $fuel
+     */
+    public function setFuel(?string $fuel): void
+    {
+        $this->fuel = $fuel;
     }
 
 

@@ -32,6 +32,18 @@ $(document).ready(function () {
         required: true,
         maxlength: 200,
       },
+      home_departure_time: {
+        required: true,
+        maxlength: 10,
+      },
+      work_departure_time: {
+        required: true,
+        maxlength: 10,
+      },
+      fuel_contribution: {
+        required: true,
+        maxlength: 10,
+      },
     },
     submitHandler: function () {
       signup();
@@ -219,6 +231,10 @@ let signup = () => {
   const work_address_long = getWorkPlacesElement("longitude");
 
   const facebook = $("#facebook-link").val().trim();
+
+  const home_departure_time = $("#home_departure_time").val().trim();
+  const work_departure_time = $("#work_departure_time").val().trim();
+  const fuel_contribution = $("#fuel_contribution").val().trim();
   //check that this is a valid link url
     if (facebook !== "") {
         if (!validURL(facebook)) {
@@ -244,7 +260,10 @@ let signup = () => {
     work_address_lat: work_address_lat,
     work_address_long: work_address_long,
     work_city: work_city,
-    work_suburb: work_suburb
+    work_suburb: work_suburb,
+    home_departure_time: home_departure_time,
+    work_departure_time: work_departure_time,
+    fuel_contribution: fuel_contribution
   };
 
   //add a spinner to the input button to indicate loading has started. the button id is signu
