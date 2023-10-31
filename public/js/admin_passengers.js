@@ -49,6 +49,7 @@ let getAllPassengers = () => {
                 tr.append("<td>Not matched</td>");
             }
 
+
             //append a select with id driver-status
             let select = $('<select/>');
             select.attr("id", "passenger-status");
@@ -75,6 +76,10 @@ let getAllPassengers = () => {
             tr.append(td);
 
             tr.append("<td>" + data[i].travel_time + "</td>");
+
+            let confirmMessage = "Thank you for joining workride.co.za. Please confirm that you are a "+data[i].type+". Travelling from " + data[i].home_address.full_address + " to " + data[i].work_address.full_address + ". Reply with YES or NO";
+            tr.append("<td><a href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=" + confirmMessage + "'>Confirm</a></td>");
+
 
             $('#commuters-tbody').append(tr);
         }
