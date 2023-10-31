@@ -71,6 +71,14 @@ class NavigationController extends AbstractController
     }
 
     /**
+     * @Route("/signup0242ac120002", name="createFacebookUser")
+     */
+    public function createFacebookUser(LoggerInterface $logger): Response
+    {
+        return $this->render('admin_signup.html');
+    }
+
+    /**
      * @Route("/match", name="match")
      */
     public function match(LoggerInterface $logger): Response

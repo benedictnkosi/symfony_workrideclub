@@ -45,7 +45,7 @@ class Commuter
      *
      * @ORM\Column(name="phone", type="string", length=45, nullable=true)
      */
-    #[ORM\Column(type: "string", length: 45, nullable: true)]
+    #[ORM\Column(type: "string", length: 200, nullable: true)]
     private $phone;
 
     /**

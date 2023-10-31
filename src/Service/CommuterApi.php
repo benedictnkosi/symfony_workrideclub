@@ -75,7 +75,9 @@ class CommuterApi extends AbstractController
 
             $commuter = new Commuter();
             $commuter->setName($parameters["name"]);
+
             $commuter->setPhone($parameters["phone"]);
+
             $commuter->setCreated(new \DateTime());
             $commuter->setHomeAddress($homeAddress);
             $commuter->setWorkAddress($workAddress);

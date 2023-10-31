@@ -87,8 +87,13 @@ let getAllDrivers = () => {
             tr.append("<td>" + data[i].id + "</td>");
             tr.append("<td>" + data[i].created.replace("+02:00","") + "</td>");
             tr.append("<td>" + data[i].name + "</td>");
-            data[i].phone = formatPhoneNumber(data[i].phone);
-            tr.append("<td><a href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=Hello " + data[i].name + "'>" + data[i].phone + "</a></td>");
+
+            if(!validURL(data[i].phone)){
+                data[i].phone = formatPhoneNumber(data[i].phone);
+                tr.append("<td><a target='_blank'  href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=Hello " + data[i].name + "'>" + data[i].phone + "</a></td>");
+            }else{
+                tr.append("<td><a target='_blank'  href='"+data[i].phone+"'>Facebook Chat</a></td>");
+            }
 
             //remove text after the last comma from data[i].home_address.full_address
             let home_address = data[i].home_address.full_address;
@@ -172,6 +177,17 @@ let getAllDrivers = () => {
     }
   });
 };
+
+//create url validate function
+function validURL(str) {
+    const pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+        '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+    return !!pattern.test(str);
+}
 
 let formatPhoneNumber = (phoneNumberString) => {
     //if phone number start with zero, make it start with +27
