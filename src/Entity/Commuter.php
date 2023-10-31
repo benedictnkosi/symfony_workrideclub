@@ -57,6 +57,14 @@ class Commuter
     private $created;
 
     /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="last_match", type="datetime", nullable=true)
+     */
+    #[ORM\Column(type: "datetime", nullable: true)]
+    private $lastMatch;
+
+    /**
      * @var string|null
      *
      * @ORM\Column(name="status", type="string", length=45, nullable=true)
@@ -262,6 +270,22 @@ class Commuter
     public function setTravelTime(?int $travelTime): void
     {
         $this->travelTime = $travelTime;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getLastMatch(): ?\DateTime
+    {
+        return $this->lastMatch;
+    }
+
+    /**
+     * @param \DateTime|null $lastMatch
+     */
+    public function setLastMatch(?\DateTime $lastMatch): void
+    {
+        $this->lastMatch = $lastMatch;
     }
 
 

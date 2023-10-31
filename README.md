@@ -101,3 +101,5 @@ SET FOREIGN_KEY_CHECKS=0;
 delete from commuter where id > 0;
 delete from commuter_match where id > 0;
 delete from commuter_address where id > 0;
+
+SET FOREIGN_KEY_CHECKS=0;

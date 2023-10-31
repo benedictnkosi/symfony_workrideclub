@@ -47,6 +47,14 @@ class NavigationController extends AbstractController
     }
 
     /**
+     * @Route("/passengers", name="passengers")
+     */
+    public function passengers(LoggerInterface $logger): Response
+    {
+        return $this->render('passengers.html');
+    }
+
+    /**
      * @Route("/matched", name="matched")
      */
     public function matched(LoggerInterface $logger): Response
