@@ -88,7 +88,7 @@ let getAllDrivers = () => {
             tr.append("<td>" + data[i].id + "</td>");
             tr.append("<td>" + data[i].created.replace("+02:00","") + "</td>");
             tr.append("<td>" + data[i].name + "</td>");
-            tr.append("<td><a href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=Hello'>" + data[i].phone + "</a></td>");
+            tr.append("<td><a href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=Hello " + data[i].name + "'>" + data[i].phone + "</a></td>");
 
             //remove text after the last comma from data[i].home_address.full_address
             let home_address = data[i].home_address.full_address;

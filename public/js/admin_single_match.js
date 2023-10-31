@@ -47,7 +47,7 @@ let getMatch = () => {
             match.driver.phone = match.driver.phone.replaceAll(" ", "");
 
             let driver = "Name: " +  match.driver.name
-                + "<br>Phone: <a href='https://api.whatsapp.com/send?phone="+match.driver.phone+"&text=Hello'>" + match.driver.phone + "</a>"
+                + "<br>Phone: <a href='https://api.whatsapp.com/send?phone="+match.driver.phone+"&text=Hello " +match.driver.name + "'>" + match.driver.phone + "</a>"
                 + "<br>Email: " + match.driver.email
                 + "<br>Home Address: " + match.driver.home_address.full_address
                 + "<br>Work Address: " + match.driver.work_address.full_address
