@@ -74,8 +74,6 @@ let getAllPassengers = () => {
             td.append(select);
             tr.append(td);
 
-
-            tr.append("<td>" + data[i].status + "</td>");
             tr.append("<td>" + data[i].travel_time + "</td>");
 
             $('#commuters-tbody').append(tr);
