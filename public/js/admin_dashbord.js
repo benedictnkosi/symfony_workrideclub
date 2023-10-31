@@ -4,6 +4,8 @@ $(document).ready(function () {
     getJoiners("driver", "6", "drivers7days");
     getJoiners("passenger", "0", "passengersToday");
     getJoiners("passenger", "6", "passengers7days");
+    getJoiners("driver", "365", "allDrivers");
+    getJoiners("passenger", "365", "allPassengers");
 });
 
 
