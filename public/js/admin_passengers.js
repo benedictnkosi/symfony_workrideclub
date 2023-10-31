@@ -77,7 +77,7 @@ let getAllPassengers = () => {
 
             tr.append("<td>" + data[i].travel_time + "</td>");
 
-            let confirmMessage = "Thank you for joining workride.co.za. Please confirm that you are a "+data[i].type+". Travelling from " + data[i].home_address.full_address + " to " + data[i].work_address.full_address + ". Reply with YES or NO";
+            let confirmMessage = "This is workride.co.za. Please confirm that you are a "+data[i].type+". Travelling from " + data[i].home_address.full_address + " to " + data[i].work_address.full_address + ". Reply with YES or NO";
             tr.append("<td><a href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=" + confirmMessage + "'>Confirm</a></td>");
 
 
