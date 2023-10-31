@@ -34,8 +34,9 @@ let getAlMatches = (driverId) => {
             tr.append("<td><a target='_blank' href='/match?id="+data[i].id+"'>" + data[i].driver.name + "</a></td>");
             tr.append("<td><a target='_blank' href='/match?id="+data[i].id+"'>" + data[i].passenger.name + "</a></td>");
             tr.append("<td><a target='_blank' href='"+data[i].map_link+"'>" + data[i].driver.home_address.full_address.replace(", South Africa", "") + "</a></td>");
-            tr.append("<td>" + data[i].passenger.home_address.full_address.replace(", South Africa", "") + "</td>");
             tr.append("<td>" + data[i].driver.work_address.full_address.replace(", South Africa", "") + "</td>");
+
+            tr.append("<td>" + data[i].passenger.home_address.full_address.replace(", South Africa", "") + "</td>");
             tr.append("<td>" + data[i].passenger.work_address.full_address.replace(", South Africa", "") + "</td>");
             tr.append("<td>" + data[i].additional_time + "</td>");
             tr.append("<td>" + data[i].status + "</td>");
