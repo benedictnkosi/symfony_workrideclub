@@ -168,6 +168,40 @@ class CommuterApi extends AbstractController
     }
 
 
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
+    public function updateDriverStatus($request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
 
+        try {
+            $parameters = json_decode($request->getContent(), true);
+
+            $driver = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => intval($parameters["id"])));
+
+            if ($driver == null) {
+                return array(
+                    'message' => "Driver not found",
+                    'code' => "R01"
+                );
+            }
+
+            $driver->setStatus($parameters["status"]);
+
+            //flush
+            $this->em->persist($driver);
+            $this->em->flush();
+
+            return array(
+                'message' => "Status updated",
+                'code' => "R00"
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error finding commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuter",
+                'code' => "R01"
+            );
+        }
+    }
 
 }

@@ -48,6 +48,8 @@ let getAllPassengers = () => {
             }else{
                 tr.append("<td>Not matched</td>");
             }
+
+            tr.append("<td>" + data[i].status + "</td>");
             tr.append("<td>" + data[i].travel_time + "</td>");
 
             $('#commuters-tbody').append(tr);

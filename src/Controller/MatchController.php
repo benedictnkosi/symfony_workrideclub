@@ -16,9 +16,9 @@ class MatchController extends AbstractController
 {
 
     /**
-     * @Route("api/matches/{driverId}")
+     * @Route("api/matches/{driverId}/{status}")
      */
-    public function getMatches($driverId, Request $request, LoggerInterface $logger, MatchService $matchApi): Response
+    public function getMatches($driverId,$status, Request $request, LoggerInterface $logger, MatchService $matchApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {
@@ -29,7 +29,7 @@ class MatchController extends AbstractController
             return new JsonResponse($response, 405, array());
         }
 
-        $response = $matchApi->getAllMatches($driverId);
+        $response = $matchApi->getAllMatches($driverId, $status);
         return new JsonResponse($response, 200, array());
     }
 

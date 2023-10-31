@@ -1,14 +1,20 @@
 //on page load
 $(document).ready(function () {
-    getAlMatches(0);
+    getAlMatches(0, "active");
+
+    $('.li-status-filter').click(function(event){
+        // get attribute data-id and pass to getAlMatches
+        getAlMatches("all", event.target.getAttribute("data-status"));
+    });
+
 });
 
 let driverNames = [];
 
 
-let getAlMatches = (driverName) => {
+let getAlMatches = (driverId, status) => {
 
-  let url = "/api/matches/" + driverName;
+  let url = "/api/matches/" + driverId + "/" + status
 
   $.ajax({
     url: url,
@@ -16,11 +22,8 @@ let getAlMatches = (driverName) => {
     contentType: "application/json",
     success: function (response, textStatus, jqXHR) {
       //convert json string to json object
-        let data = JSON.parse(response.matches);
-
-        //loop through the data
-        //clear #commuters-tbody first
         $('#commuters-tbody').html("");
+        let data = JSON.parse(response.matches);
 
         for (let i = 0; i < data.length; i++) {
             //create tr element and append to tbody with id commuters-tbody
@@ -32,6 +35,7 @@ let getAlMatches = (driverName) => {
             tr.append("<td>" + data[i].driver.work_address.full_address.replace(", South Africa", "") + "</td>");
             tr.append("<td>" + data[i].passenger.work_address.full_address.replace(", South Africa", "") + "</td>");
             tr.append("<td>" + data[i].additional_time + "</td>");
+            tr.append("<td>" + data[i].status + "</td>");
             tr.append("<td>" + data[i].driver_status + "</td>");
             tr.append("<td>" + data[i].passenger_status + "</td>");
             $('#commuters-tbody').append(tr);

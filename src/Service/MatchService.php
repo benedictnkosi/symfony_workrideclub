@@ -224,8 +224,7 @@ class MatchService
             'map_link' => $mapLink);
     }
 
-
-    public function getAllMatches($driverId): array
+    public function getAllMatches($driverId, $status): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
@@ -236,20 +235,17 @@ class MatchService
                     ->where('c.status = :status')
                     ->andWhere('c.additionalTime < :max_time')
                     ->orderBy('c.additionalTime', 'ASC')
-                    ->setParameter('status', "active")
+                    ->setParameter('status', $status)
                     ->setParameter('max_time', $_ENV['MAX_ADDITIONAL_TIME'])
                     ->getQuery()
                     ->getResult();
             }else{
-                $driver = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => intval($driverId)));
                 $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
                     ->where('c.status = :status')
                     ->andWhere('c.additionalTime < :max_time')
-                    ->andWhere('c.driver = :driverID')
                     ->orderBy('c.additionalTime', 'ASC')
-                    ->setParameter('status', "active")
+                    ->setParameter('status', $status)
                     ->setParameter('max_time', $_ENV['MAX_ADDITIONAL_TIME'])
-                    ->setParameter('driverID', $driver->getId())
                     ->getQuery()
                     ->getResult();
             }
@@ -331,8 +327,22 @@ class MatchService
 
             if($parameters["commuter_type"] == "driver"){
                 $match->setDriverStatus($parameters["status"]);
+                if($parameters["status"] == "rejected"){
+                    $match->setStatus("driver_rejected");
+                }elseif ($parameters["status"] == "accepted"){
+                    if($match->getPassengerStatus() == "accepted"){
+                        $match->setStatus("matched");
+                    }
+                }
             }else if($parameters["commuter_type"] == "passenger"){
                 $match->setPassengerStatus($parameters["status"]);
+                if($parameters["status"] == "rejected"){
+                    $match->setStatus("passenger_rejected");
+                }elseif ($parameters["status"] == "accepted"){
+                    if($match->getDriverStatus() == "accepted"){
+                        $match->setStatus("matched");
+                    }
+                }
             }else {
                 $match->setStatus($parameters["status"]);
             }

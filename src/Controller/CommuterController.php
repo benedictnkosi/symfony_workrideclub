@@ -4,6 +4,7 @@ namespace App\Controller;
 
 
 use App\Service\CommuterApi;
+use App\Service\MatchService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -54,4 +55,21 @@ class CommuterController extends AbstractController
         return new JsonResponse($response, 200, array());
     }
 
+    /**
+     * @Route("api/update/driver/status")
+     */
+    public function updateDriverStatus(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('PUT')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->updateDriverStatus($request);
+        return new JsonResponse($response, 200, array());
+    }
 }

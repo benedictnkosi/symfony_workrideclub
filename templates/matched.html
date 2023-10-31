@@ -31,11 +31,23 @@
     </div>
 </nav>
 
-<div class="dropdown">
+<div class="dropdown m-1">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
         Filter By Driver
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1" id="driver-ul"></ul>
+</div>
+
+<div class="dropdown m-1">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStatus" data-bs-toggle="dropdown" aria-expanded="false">
+        Filter By Status
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+        <li><a class="dropdown-item li-status-filter" href="#" data-status="active">Active</a></li>
+        <li><a class="dropdown-item li-status-filter" href="#" data-status="matched">Matched</a></li>
+        <li><a class="dropdown-item li-status-filter" href="#" data-status="driver_rejected">Driver Rejected</a></li>
+        <li><a class="dropdown-item li-status-filter" href="#" data-status="passenger_rejected">Passenger Rejected</a></li>
+    </ul>
 </div>
 
 <div class="tableFixHead">
@@ -49,6 +61,7 @@
         <th scope="col">D Work</th>
         <th scope="col">P Work</th>
         <th scope="col">+Mins</th>
+        <th scope="col">Status</th>
         <th scope="col">D Status</th>
         <th scope="col">P Status</th>
     </tr>
