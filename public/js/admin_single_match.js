@@ -55,7 +55,7 @@ let getMatch = () => {
             $('#driver-details').html(driver);
 
             let passenger = "Name: " +  match.passenger.name
-                + "<br>Phone: <a href='https://api.whatsapp.com/send?phone="+match.passenger.phone+"&text=Hello " +match.passenger.name + "'>" + match.passenger.phone + "</a>"
+                + "<br>Phone: <a href='https://api.whatsapp.com/send?phone="+match.passenger.phone+"&text=Hello " +match.passenger.name + ", We found a lift club for you. WorkRide.co.za'>" + match.passenger.phone + "</a>"
                 + "<br>Email: " + match.passenger.email
                 + "<br>Home Address: " + match.passenger.home_address.full_address
                 + "<br>Work Address: " + match.passenger.work_address.full_address
