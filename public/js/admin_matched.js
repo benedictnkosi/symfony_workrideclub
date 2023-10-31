@@ -1,10 +1,13 @@
 //on page load
 $(document).ready(function () {
-    getAlMatches(0, "active");
+    getAlMatches(0);
 
     $('.li-status-filter').click(function(event){
+        //set text for dropdownMenuButtonStatus and data-status attribute
+        $('#dropdownMenuButtonStatus').text(event.target.getAttribute("data-status"));
+        $('#dropdownMenuButtonStatus').attr("data-status", event.target.getAttribute("data-status"));
         // get attribute data-id and pass to getAlMatches
-        getAlMatches("all", event.target.getAttribute("data-status"));
+        getAlMatches("all");
     });
 
 });
@@ -12,9 +15,9 @@ $(document).ready(function () {
 let driverNames = [];
 
 
-let getAlMatches = (driverId, status) => {
+let getAlMatches = (driverId) => {
 
-  let url = "/api/matches/" + driverId + "/" + status
+  let url = "/api/matches/" + driverId + "/" + $('#dropdownMenuButtonStatus').attr("data-status");
 
   $.ajax({
     url: url,
