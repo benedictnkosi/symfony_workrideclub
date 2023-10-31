@@ -142,6 +142,7 @@ let getAllDrivers = () => {
             //append a button to tr
             tr.append("<td><button class='btn btn-primary calc-button' data-id='"+data[i].id+"' style='padding:0'>Calculate</button></td>");
             tr.append("<td><button class='btn btn-primary match-button' data-id='"+data[i].id+"' style='padding:0'>Match</button></td>");
+            tr.append("<td><button class='btn btn-primary unmatch-button' data-id='"+data[i].id+"' style='padding:0'>Un-Match</button></td>");
 
             $('#commuters-tbody').append(tr);
         }
