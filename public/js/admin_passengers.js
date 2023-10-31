@@ -24,7 +24,7 @@ let getAllPassengers = () => {
             tr.append("<td>" + data[i].created.replace("+02:00","") + "</td>");
             tr.append("<td>" + data[i].name + "</td>");
             data[i].phone = formatPhoneNumber(data[i].phone);
-            tr.append("<td><a href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=Hello " + data[i].name + "'>" + data[i].phone + "</a></td>");
+            tr.append("<td><a target='_blank'  href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=Hello " + data[i].name + "'>" + data[i].phone + "</a></td>");
 
             //remove text after the last comma from data[i].home_address.full_address
             let home_address = data[i].home_address.full_address;
@@ -78,7 +78,7 @@ let getAllPassengers = () => {
             tr.append("<td>" + data[i].travel_time + "</td>");
 
             let confirmMessage = "This is workride.co.za. Please confirm that you are a "+data[i].type+". Travelling from " + data[i].home_address.full_address + " to " + data[i].work_address.full_address + ". Reply with YES or NO";
-            tr.append("<td><a href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=" + confirmMessage + "'>Confirm</a></td>");
+            tr.append("<td><a target='_blank' href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=" + confirmMessage + "'>Confirm</a></td>");
 
 
             $('#commuters-tbody').append(tr);
