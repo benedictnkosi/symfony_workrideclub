@@ -37,6 +37,13 @@ async function initMap() {
             markerData.forEach(data => {
                 //split the work address to get the city
                 let workCity = data.work.split(',')[1];
+                if(workCity.includes(' Rd')
+                || workCity.includes(' Ave')
+                || workCity.includes(' St')
+                || workCity.includes('-Jr')
+                ){
+                    workCity = data.work.split(',')[2];
+                }
                 const priceTag = document.createElement("div");
 
                 if(data.type.localeCompare("passenger")){
