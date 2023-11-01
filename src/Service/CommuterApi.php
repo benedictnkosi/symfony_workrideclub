@@ -111,7 +111,7 @@ class CommuterApi extends AbstractController
 
         try {
             if($type == "all" ){
-                $commuters = $this->em->getRepository(Commuter::class)->findAll();
+                $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => 'active'));
             }else{
                 $commuters = $this->em->getRepository(Commuter::class)->findBy(array('type' => $type), array('created' => 'DESC'));
 
