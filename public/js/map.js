@@ -41,6 +41,7 @@ async function initMap() {
                 || workCity.includes(' Ave')
                 || workCity.includes(' St')
                 || workCity.includes('-Jr')
+                    || workCity.includes(' Dr')
                 ){
                     workCity = data.work.split(',')[2];
                 }
