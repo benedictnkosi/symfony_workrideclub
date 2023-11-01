@@ -38,7 +38,7 @@ let getMatch = () => {
             let driver = "Name: " +  match.driver.name;
             if(!validURL(match.driver.phone)){
                 match.driver.phone = formatPhoneNumber(match.driver.phone);
-                driver += "<br>Phone Number: <a target='_blank'  href='https://api.whatsapp.com/send?phone="+match.driver.phone+"&text=Hello " +match.driver.phone + "'>" + match.driver.phone + "</a>";
+                driver += "<br>Phone Number: <a target='_blank'  href='https://api.whatsapp.com/send?phone="+match.driver.phone+"&text=Hi " +match.driver.name + ", We found a match for you. workride.co.za'>" + match.driver.phone + "</a>";
             }else{
                 driver += "<br> <a target='_blank'  href='"+match.driver.phone+"'>Facebook Chat</a>";
             }
@@ -53,7 +53,7 @@ let getMatch = () => {
             let passenger = "Name: " +  match.passenger.name
             if(!validURL(match.passenger.phone)){
                 match.passenger.phone = formatPhoneNumber(match.passenger.phone);
-                passenger += "<br>Phone Number: <a target='_blank'  href='https://api.whatsapp.com/send?phone="+match.passenger.phone+"&text=Hello " + match.passenger.phone + "'>" + match.passenger.phone + "</a>";
+                passenger += "<br>Phone Number: <a target='_blank'  href='https://api.whatsapp.com/send?phone="+match.passenger.phone+"&text=Hi " + match.passenger.name + ", We found a lift club for you. workride.co.za'>" + match.passenger.phone + "</a>";
             }else{
                 passenger += "<br><a target='_blank'  href='"+match.passenger.phone+"'>Facebook Chat</a>";
             }
