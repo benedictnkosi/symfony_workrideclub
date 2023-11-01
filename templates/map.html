@@ -1,0 +1,78 @@
+<html>
+<head>
+    <title>Simple Markers</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+
+    <script type="module" src="/js/map.js"></script>
+    <style>/*
+ * Always set the map height explicitly to define the size of the div element
+ * that contains the map.
+ */
+    #map {
+        height: 100%;
+    }
+
+    /*
+     * Optional: Makes the sample page fill the window.
+     */
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    /* HTML marker styles */
+    .price-tag {
+
+        border-radius: 8px;
+        color: #FFFFFF;
+        font-size: 14px;
+        padding: 10px 15px;
+        position: relative;
+    }
+
+    .driver{
+        background-color: #4285F4;
+    }
+
+    .passenger{
+        background-color: #e72734;
+    }
+    .price-tag::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 100%;
+        transform: translate(-50%, 0);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid #4285F4;
+    }
+
+    [class$=api-load-alpha-banner] {
+        display: none;
+    }
+
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<!--
+  The `defer` attribute causes the callback to execute after the full HTML
+  document has been parsed. For non-blocking uses, avoiding race conditions,
+  and consistent behavior across browsers, consider loading using Promises.
+  See https://developers.google.com/maps/documentation/javascript/load-maps-js-api
+  for more information.
+  -->
+<script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyvOA23lHRyD5da2MtiMzI5wzFabxuFiY&callback=initMap&v=weekly"
+        defer
+></script>
+
+</body>
+</html>

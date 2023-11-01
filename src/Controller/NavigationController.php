@@ -79,6 +79,14 @@ class NavigationController extends AbstractController
     }
 
     /**
+     * @Route("/map0242ac120002", name="map")
+     */
+    public function map(LoggerInterface $logger): Response
+    {
+        return $this->render('map.html');
+    }
+
+    /**
      * @Route("/match", name="match")
      */
     public function match(LoggerInterface $logger): Response
