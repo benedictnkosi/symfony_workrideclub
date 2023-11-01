@@ -7,7 +7,7 @@ $(document).ready(function () {
         $('#dropdownMenuButtonStatus').text(event.target.getAttribute("data-status"));
         $('#dropdownMenuButtonStatus').attr("data-status", event.target.getAttribute("data-status"));
         // get attribute data-id and pass to getAlMatches
-        getAlMatches("all");
+        getAlMatches("0");
     });
 
 });
