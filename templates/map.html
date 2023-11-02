@@ -9,15 +9,13 @@
           content="Connect with commuters who share your route and schedule, reducing costs and environmental impact. Join our platform today to find your next lift club.">
     <link rel="shortcut icon" href="/images/workrideclublogo.png"/>
     <title>Work Ride</title>
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 
     <script type="module" src="/js/map.js"></script>
-    <style>/*
- * Always set the map height explicitly to define the size of the div element
- * that contains the map.
- */
+    <style>
     #map {
         height: 100%;
     }
@@ -120,15 +118,42 @@
         text-decoration: none !important;
     }
 
-
+    .whatsapp{
+        margin-bottom: 1em;
+    }
+    .whatsapp-icon{
+        font-size: 1em;
+        color: #25D366;
+    }
+    .whatsapp:hover{
+        text-decoration: none;
+    }
+    .whatsapp:hover .whatsapp-icon{
+        color: #128C7E;
+    }
+    .whatsapp:active .whatsapp-icon{
+        color: #075E54;
+    }
+    .whatsapp:focus .whatsapp-icon{
+        color: #075E54;
+    }
     </style>
 </head>
 <body>
+
 <!--add floating button-->
 <div class="fixed-action-btn">
-    <a class="btn-floating btn-large red signup-button" href="/signup">
-        <i class="large material-icons">Join Now</i>
-    </a>
+    <div style="display: block; margin-bottom:10px">
+        <a href="https://wa.me/27611111111?text=Hi%20I%20would%20like%20to%20join%20Work%20Ride" class="whatsapp signup-button"
+           target="_blank"> <i class="fa fa-whatsapp whatsapp-icon"></i>Whatsapp</a>
+    </div>
+
+    <div>
+        <a class="btn-floating btn-large red signup-button" href="/signup">
+            <i class="large material-icons">Sign Up Now</i>
+        </a>
+    </div>
+
 </div>
 <!--add floating button-->
 <div id="map"></div>
