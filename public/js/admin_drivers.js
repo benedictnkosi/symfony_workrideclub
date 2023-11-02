@@ -40,6 +40,7 @@ let matchCommuter = (id) => {
             //remove spinners from buttons
             $(".match-button").html("Match");
             showToast(response.message);
+            getAllDrivers();
         },
         error: function (jqXHR, textStatus, errorThrown) {
             $(".match-button").html("Match");
