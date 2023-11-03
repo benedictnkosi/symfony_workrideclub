@@ -335,7 +335,7 @@ class MatchService
                     if($match->getPassengerStatus() == "accepted"){
                         $match->setStatus("matched");
                     }else{
-                        $match->setStatus("driver_accepted");
+                        $match->setStatus("active");
                     }
                 }
             }else if($parameters["commuter_type"] == "passenger"){
@@ -346,7 +346,7 @@ class MatchService
                     if($match->getDriverStatus() == "accepted"){
                         $match->setStatus("matched");
                     }else{
-                        $match->setStatus("passenger_accepted");
+                        $match->setStatus("active");
                     }
                 }
             }else {
