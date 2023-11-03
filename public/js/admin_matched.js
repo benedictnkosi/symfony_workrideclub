@@ -79,6 +79,7 @@ let getAlMatches = (driverId) => {
 
 
 
+
         //add click event for class match-button us the data-id attribute to get the id of the commuter
         $(".match-button").click(function(){
             let id = $(this).attr("data-id");
