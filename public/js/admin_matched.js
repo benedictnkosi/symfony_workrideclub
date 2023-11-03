@@ -68,6 +68,14 @@ let getAlMatches = (driverId) => {
             }
         }
 
+        //sort #driver-ul by driver name ascending
+        let ul = $('#driver-ul');
+        ul.children().detach().sort(function(a, b) {
+            let at = $(a).text();
+            let bt = $(b).text();
+            return (at > bt)?1:((at < bt)?-1:0);
+        });
+
 
         //add click event for class match-button us the data-id attribute to get the id of the commuter
         $(".match-button").click(function(){
