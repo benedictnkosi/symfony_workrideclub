@@ -125,6 +125,7 @@ let getAllDrivers = () => {
             select.append("<option value=''>Select</option>");
             select.append("<option value='active'>Active</option>");
             select.append("<option value='unavailable'>Unavailable</option>");
+            select.append("<option value='unavailable'>Non-Responsive</option>");
             select.append("<option value='deleted'>Deleted</option>");
 
             //set the selected option
