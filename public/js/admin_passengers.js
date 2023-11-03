@@ -6,6 +6,8 @@ $(document).ready(function () {
 
 let getAllPassengers = () => {
 
+    //clear the tbody with id commuters-tbody
+    $('#commuters-tbody').empty();
   let url = "/api/commuters/passenger";
 
   $.ajax({

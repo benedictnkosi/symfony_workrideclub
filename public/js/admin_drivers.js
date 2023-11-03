@@ -70,7 +70,7 @@ let unmatchCommuter = (id) => {
 }
 
 let getAllDrivers = () => {
-
+    $('#commuters-tbody').empty();
   let url = "/api/commuters/driver";
 
   $.ajax({
