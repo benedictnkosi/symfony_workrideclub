@@ -75,6 +75,8 @@ let getAlMatches = (driverId) => {
             let bt = $(b).text();
             return (at > bt)?1:((at < bt)?-1:0);
         });
+        ul.append(ul.children());
+
 
 
         //add click event for class match-button us the data-id attribute to get the id of the commuter
