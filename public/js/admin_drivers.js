@@ -21,6 +21,7 @@ let matchAllDrivers = () => {
             //remove spinners from buttons
             $("#match-all-drivers").html("Match All Drivers");
             showToast(response.message);
+            getAllDrivers();
         },
         error: function (jqXHR, textStatus, errorThrown) {
             $("#match-all-drivers").html("Match All Drivers");
@@ -67,7 +68,6 @@ let unmatchCommuter = (id) => {
         }
     });
 }
-
 
 let getAllDrivers = () => {
 
@@ -125,6 +125,7 @@ let getAllDrivers = () => {
             select.append("<option value=''>Select</option>");
             select.append("<option value='active'>Active</option>");
             select.append("<option value='unavailable'>Unavailable</option>");
+            select.append("<option value='deleted'>Deleted</option>");
 
             //set the selected option
             if(data[i].status === "active"){
@@ -220,6 +221,7 @@ let updateDriverStatus = (id, status) => {
         data: JSON.stringify(data),
         success: function (response, textStatus , jqXHR) {
             showToast(response.message);
+            getAllDrivers();
         },
         error: function (jqXHR, textStatus, errorThrown) {
             showToast("Request failed with status code: " + jqXHR.status);

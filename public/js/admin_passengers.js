@@ -60,6 +60,7 @@ let getAllPassengers = () => {
             select.append("<option value=''>Select</option>");
             select.append("<option value='active'>Active</option>");
             select.append("<option value='unavailable'>Unavailable</option>");
+            select.append("<option value='deleted'>Deleted</option>");
 
             //set the selected option
             if(data[i].status === "active"){
@@ -81,18 +82,45 @@ let getAllPassengers = () => {
 
             tr.append("<td>" + data[i].travel_time + "</td>");
 
-            let confirmMessage = "This is workride.co.za. Please confirm that you are a "+data[i].type+". Travelling from " + data[i].home_address.full_address + " to " + data[i].work_address.full_address + ". Reply with YES or NO";
-            tr.append("<td><a target='_blank' href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=" + confirmMessage + "'>Confirm</a></td>");
-
+            tr.append("<td><button class='btn btn-primary unmatch-button' data-id='"+data[i].id+"' style='padding:0'>Un-Match</button></td>");
 
             $('#commuters-tbody').append(tr);
         }
+
+        //add click event for class unmatch-button us the data-id attribute to get the id of the commuter
+        $(".unmatch-button").click(function(event){
+            //get button from event and append spinner
+            $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+            let id = $(this).attr("data-id");
+            unmatchCommuter(id);
+        });
+
     },
     error: function (jqXHR, textStatus, errorThrown) {
         showToast("Request failed with status code: " + jqXHR.status);
     }
   });
 };
+
+let unmatchCommuter = (id) => {
+    let url = "api/commuters/unmatch/" + id;
+
+    $.ajax({
+        url: url,
+        type: "get",
+        contentType: "application/json",
+        success: function (response, textStatus, jqXHR) {
+            showToast(response.message);
+            //remove spinners from buttons
+            $(".unmatch-button").html("Unmatch");
+            getAllPassengers();
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            showToast("Request failed with status code: " + jqXHR.status);
+            $(".unmatch-button").html("Unmatch");
+        }
+    });
+}
 
 //create url validate function
 function validURL(str) {
@@ -125,7 +153,6 @@ let updatePassengerStatus = (id, status) => {
         }
     });
 };
-
 
 let formatPhoneNumber = (phoneNumberString) => {
     //if phone number start with zero, make it start with +27

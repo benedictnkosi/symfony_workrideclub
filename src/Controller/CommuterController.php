@@ -69,7 +69,7 @@ class CommuterController extends AbstractController
             return new JsonResponse($response, 405, array());
         }
 
-        $response = $commuterApi->updateDriverStatus($request);
+        $response = $commuterApi->updateCommuterStatus($request);
         return new JsonResponse($response, 200, array());
     }
 

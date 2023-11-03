@@ -178,27 +178,43 @@ class CommuterApi extends AbstractController
 
 
     #[ArrayShape(['message' => "string", 'code' => "string"])]
-    public function updateDriverStatus($request): array
+    public function updateCommuterStatus($request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
         try {
             $parameters = json_decode($request->getContent(), true);
 
-            $driver = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => intval($parameters["id"])));
+            $commuter = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => intval($parameters["id"])));
 
-            if ($driver == null) {
+            if ($commuter == null) {
                 return array(
-                    'message' => "Driver not found",
+                    'message' => "Commuter not found",
                     'code' => "R01"
                 );
             }
 
-            $driver->setStatus($parameters["status"]);
-
-            //flush
-            $this->em->persist($driver);
-            $this->em->flush();
+            if($parameters["status"] == "deleted"){
+                //remove all matches
+                if($commuter->getType() == "driver"){
+                    $matches = $this->em->getRepository(CommuterMatch::class)->findBy(array('driver' => $commuter));
+                    foreach ($matches as $match) {
+                        $this->em->remove($match);
+                    }
+                }else{
+                    $matches = $this->em->getRepository(CommuterMatch::class)->findBy(array('passenger' => $commuter));
+                    foreach ($matches as $match) {
+                        $this->em->remove($match);
+                    }
+                }
+                //flush
+                $this->em->remove($commuter);
+                $this->em->flush();
+            }else{
+                $commuter->setStatus($parameters["status"]);
+                $this->em->persist($commuter);
+                $this->em->flush();
+            }
 
             return array(
                 'message' => "Status updated",
