@@ -176,6 +176,40 @@ class CommuterApi extends AbstractController
         );
     }
 
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
+    public function updateCommuterPhone($request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $parameters = json_decode($request->getContent(), true);
+
+            $commuter = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => intval($parameters["id"])));
+
+            if ($commuter == null) {
+                return array(
+                    'message' => "Commuter not found",
+                    'code' => "R01"
+                );
+            }
+
+            $commuter->setPhone($parameters["phone"]);
+            $this->em->persist($commuter);
+            $this->em->flush();
+
+            return array(
+                'message' => "Phone updated",
+                'code' => "R00"
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error finding commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuter",
+                'code' => "R01"
+            );
+        }
+    }
+
 
     #[ArrayShape(['message' => "string", 'code' => "string"])]
     public function updateCommuterStatus($request): array

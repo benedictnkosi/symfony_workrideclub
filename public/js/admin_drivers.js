@@ -91,9 +91,9 @@ let getAllDrivers = () => {
 
             if(!validURL(data[i].phone)){
                 data[i].phone = formatPhoneNumber(data[i].phone);
-                tr.append("<td><a target='_blank'  href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=Hello " + data[i].name + "'>" + data[i].phone + "</a></td>");
+                tr.append("<td><i role='button' data-id='"+ data[i].id + "' class='zmdi zmdi-edit material-icons-name phone-edit'></i><a target='_blank'  href='https://api.whatsapp.com/send?phone="+data[i].phone+"&text=Hello " + data[i].name + "'>" + data[i].phone + "</a></td>");
             }else{
-                tr.append("<td><a target='_blank'  href='"+data[i].phone+"'>Facebook Chat</a></td>");
+                tr.append("<td><i role='button' data-id='"+ data[i].id + "' class='zmdi zmdi-edit material-icons-name phone-edit'></i><a target='_blank'  href='"+data[i].phone+"'>Facebook Chat</a></td>");
             }
 
             //remove text after the last comma from data[i].home_address.full_address
@@ -155,7 +155,17 @@ let getAllDrivers = () => {
             $('#commuters-tbody').append(tr);
         }
 
+        //on class phone-edit click open an input dialog that takes in a phone number
+        $(".phone-edit").click(function(event){
+            let phone = prompt("Please enter new phone number:", "");
+            if (phone == null || phone === "" || isNaN(phone)) {
 
+            } else {
+                let id = $(this).attr("data-id");
+                updateCommuterPhone(id, phone);
+                getAllDrivers();
+            }
+        });
 
         //add click event for class match-button us the data-id attribute to get the id of the commuter
         $(".match-button").click(function(event){
@@ -230,9 +240,25 @@ let updateDriverStatus = (id, status) => {
     });
 };
 
-let showToast = (message) =>{
-    const liveToast = document.getElementById('liveToast')
-    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(liveToast)
-    $('#toast-message').html('<div class="alert" role="alert">'+message+'</div>');
-    toastBootstrap.show();
+ function updateCommuterPhone (id, phone) {
+    let url = "/api/update/commuter/phone";
+    const data = {
+        id: id,
+        phone: phone
+    };
+
+    $.ajax({
+        url: url,
+        type: "put",
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        success: function (response, textStatus , jqXHR) {
+            showToast(response.message);
+            getAllDrivers();
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            showToast("Request failed with status code: " + jqXHR.status);
+            return false;
+        }
+    });
 }

@@ -74,6 +74,24 @@ class CommuterController extends AbstractController
     }
 
     /**
+     * @Route("api/update/commuter/phone")
+     */
+    public function updateCommuterPhone(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('PUT')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->updateCommuterPhone($request);
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
      * @Route("api/stats/new_commuters/{driver}/{days}")
      */
     public function getCommutersJoinedCount($driver, $days, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
