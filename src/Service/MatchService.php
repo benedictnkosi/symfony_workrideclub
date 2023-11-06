@@ -377,7 +377,7 @@ class MatchService
 
         try {
             //find all drivers
-            $driverCommuters = $this->em->getRepository(Commuter::class)->findBy(array('type' => "driver", 'status' => "active"));
+            $driverCommuters = $this->em->getRepository(Commuter::class)->findBy(array('type' => "driver", 'status' => "active"), array('created' => 'DESC'));
             foreach ($driverCommuters as $driver) {
                 $this->logger->info("driver found: " . $driver->getId());
                 $driver->setLastMatch(new \DateTime());
