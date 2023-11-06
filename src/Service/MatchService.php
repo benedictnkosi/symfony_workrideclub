@@ -420,6 +420,8 @@ class MatchService
                         continue;
                     }
 
+                    $matches = null;
+
                     $travelTimeResponse = $this->calculateTravelTime($driver->getHomeAddress(), $passenger->getHomeAddress(), $passenger->getWorkAddress(), $driver->getWorkAddress(), $driver->getType() == "driver");
 
                     //write to database
@@ -441,6 +443,8 @@ class MatchService
                     $commuterMatch->setMapLink($travelTimeResponse["map_link"]);
                     $this->em->persist($commuterMatch);
                     $this->em->flush();
+
+                    $travelTimeResponse = null;
                 }
             }
 
