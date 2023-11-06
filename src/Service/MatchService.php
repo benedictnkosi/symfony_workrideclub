@@ -376,90 +376,95 @@ class MatchService
         $this->logger->info("Starting Method: " . __METHOD__);
 
         try {
-            //find all drivers
-            $driverCommuters = $this->em->getRepository(Commuter::class)->findBy(array('type' => "driver", 'status' => "active"), array('created' => 'DESC'));
-            foreach ($driverCommuters as $driver) {
-                $this->logger->info("driver found: " . $driver->getId());
-                $driver->setLastMatch(new \DateTime());
-                //flush driver
-                $this->em->persist($driver);
-                $this->em->flush();
+            // Find all active drivers
+            $driverCommuters = $this->em->getRepository(Commuter::class)
+                ->findBy(['type' => "driver", 'status' => "active"], ['created' => 'DESC']);
 
-                $passengerCommuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => "active", 'type' => "passenger"));
-                if (sizeof($passengerCommuters) == 0) {
-                    continue;
-                }
+            // Find all active passengers
+            $passengerCommuters = $this->em->getRepository(Commuter::class)
+                ->findBy(['status' => "active", 'type' => "passenger"]);
+
+            // Initialize an array to store commuter matches
+            $matches = [];
+
+            foreach ($driverCommuters as $driver) {
+                $this->logger->info("Driver found: " . $driver->getId());
+                $driver->setLastMatch(new \DateTime());
 
                 foreach ($passengerCommuters as $passenger) {
-                    $this->logger->info("commuter found: " . $passenger->getId());
+                    $this->logger->info("Commuter found: " . $passenger->getId());
 
-                    //if driver and passenger states are not the same then skip
                     if ($driver->getHomeAddress()->getState() != $passenger->getHomeAddress()->getState()) {
                         $this->logger->info("State not the same");
                         continue;
                     }
 
-                    $passenger->setLastMatch(new \DateTime());
-                    //flush driver
-                    $this->em->persist($passenger);
-                    $this->em->flush();
-                    //check
+                    // Check if the commuter is already matched
+                    $isMatched = $this->isMatched($driver->getId(), $passenger->getId());
 
-                    //check that the commuter is not matched
-                    $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
-                        ->where('c.driver = :driverId')
-                        ->andWhere('c.passenger = :passengerId')
-                        ->orderBy('c.additionalTime', 'ASC')
-                        ->setParameter('driverId', $driver->getId())
-                        ->setParameter('passengerId', $passenger->getId())
-                        ->getQuery()
-                        ->getResult();
+                    if (!$isMatched) {
+                        $travelTimeResponse = $this->calculateTravelTime(
+                            $driver->getHomeAddress(),
+                            $passenger->getHomeAddress(),
+                            $passenger->getWorkAddress(),
+                            $driver->getWorkAddress(),
+                            $driver->getType() == "driver"
+                        );
 
-                    if (sizeof($matches) > 0) {
-                        $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
-                        continue;
+                        // Create a commuter match object
+                        $commuterMatch = new CommuterMatch();
+                        $commuterMatch->setDriver($driver);
+                        $commuterMatch->setPassenger($passenger);
+                        $commuterMatch->setTotalTrip($travelTimeResponse["time"]);
+                        $commuterMatch->setDistanceHome($travelTimeResponse["driverHomeToPassengerHomeDistance"]);
+                        $commuterMatch->setDistanceWork($travelTimeResponse["passengerWorkToDriverDistance"]);
+                        $commuterMatch->setDurationHome($travelTimeResponse["driverHomeToPassengerHomeTime"]);
+                        $commuterMatch->setDurationWork($travelTimeResponse["passengerWorkToDriverTime"]);
+
+                        $driverTravelTime = $driver->getTravelTime();
+
+                        $commuterMatch->setAdditionalTime(intval($travelTimeResponse["time"] - $driverTravelTime));
+                        $commuterMatch->setStatus("active");
+                        $commuterMatch->setDriverStatus("pending");
+                        $commuterMatch->setPassengerStatus("pending");
+                        $commuterMatch->setMapLink($travelTimeResponse["map_link"]);
+
+                        // Add to the matches array
+                        $matches[] = $commuterMatch;
                     }
-
-                    $matches = null;
-
-                    $travelTimeResponse = $this->calculateTravelTime($driver->getHomeAddress(), $passenger->getHomeAddress(), $passenger->getWorkAddress(), $driver->getWorkAddress(), $driver->getType() == "driver");
-
-                    //write to database
-                    $commuterMatch = new CommuterMatch();
-                    $commuterMatch->setDriver($driver);
-                    $commuterMatch->setPassenger($passenger);
-                    $commuterMatch->setTotalTrip($travelTimeResponse["time"]);
-                    $commuterMatch->setDistanceHome($travelTimeResponse["driverHomeToPassengerHomeDistance"]);
-                    $commuterMatch->setDistanceWork($travelTimeResponse["passengerWorkToDriverDistance"]);
-                    $commuterMatch->setDurationHome($travelTimeResponse["driverHomeToPassengerHomeTime"]);
-                    $commuterMatch->setDurationWork($travelTimeResponse["passengerWorkToDriverTime"]);
-
-                    $driverTravelTime = $driver->getTravelTime();
-
-                    $commuterMatch->setAdditionalTime(intval($travelTimeResponse["time"] - $driverTravelTime));
-                    $commuterMatch->setStatus("active");
-                    $commuterMatch->setDriverStatus("pending");
-                    $commuterMatch->setPassengerStatus("pending");
-                    $commuterMatch->setMapLink($travelTimeResponse["map_link"]);
-                    $this->em->persist($commuterMatch);
-                    $this->em->flush();
-
-                    $travelTimeResponse = null;
                 }
             }
 
-            return array(
+            // Batch insert all commuter matches
+            foreach ($matches as $match) {
+                $this->em->persist($match);
+            }
+            $this->em->flush();
+
+            return [
                 'message' => "Successfully matched commuters",
                 'code' => "R00"
-            );
-
-
+            ];
         } catch (\Exception $e) {
             $this->logger->error("Error matching commuters " . $e->getMessage());
-            return array(
+            return [
                 'message' => "Error matching commuters",
                 'code' => "R01"
-            );
+            ];
         }
     }
+
+    private function isMatched($driverId, $passengerId): bool
+    {
+        $query = $this->em->getRepository("App\Entity\CommuterMatch")
+            ->createQueryBuilder('c')
+            ->where('c.driver = :driverId')
+            ->andWhere('c.passenger = :passengerId')
+            ->setParameter('driverId', $driverId)
+            ->setParameter('passengerId', $passengerId)
+            ->getQuery();
+
+        return count($query->getResult()) > 0;
+    }
+
 }
