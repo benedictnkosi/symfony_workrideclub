@@ -246,7 +246,6 @@ class MatchService
                     ->andWhere('c.driver = :driverId')
                     ->orderBy('c.additionalTime', 'ASC')
                     ->setParameter('status', $status)
-                    ->setParameter('max_time', $_ENV['MAX_ADDITIONAL_TIME'])
                     ->setParameter('driverId', $driverId)
                     ->getQuery()
                     ->getResult();
