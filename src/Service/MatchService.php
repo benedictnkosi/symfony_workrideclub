@@ -384,6 +384,7 @@ class MatchService
 
             // Initialize an array to store commuter matches
             $matches = [];
+            $commuters = [];
 
             foreach ($driverCommuters as $driver) {
                 $this->logger->info("Driver found: " . $driver->getId());
@@ -401,6 +402,7 @@ class MatchService
                     $isMatched = $this->isMatched($driver->getId(), $passenger->getId());
 
                     if (!$isMatched) {
+                        $passenger->setLastMatch(new \DateTime());
                         $travelTimeResponse = $this->calculateTravelTime(
                             $driver->getHomeAddress(),
                             $passenger->getHomeAddress(),
@@ -429,6 +431,8 @@ class MatchService
 
                         // Add to the matches array
                         $matches[] = $commuterMatch;
+                        $commuters[] = $passenger;
+                        $commuters[] = $driver;
                     }else{
                         $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
                     }
@@ -438,6 +442,10 @@ class MatchService
             // Batch insert all commuter matches
             foreach ($matches as $match) {
                 $this->em->persist($match);
+            }
+
+            foreach ($commuters as $commuter) {
+                $this->em->persist($commuter);
             }
             $this->em->flush();
 
