@@ -59,6 +59,7 @@ class CommuterApi extends AbstractController
 
             $workAddress = new CommuterAddress();
             $workAddress->setFullAddress($parameters["work_address"]);
+            $homeAddress->setState($parameters["home_address_state"]);
             $workAddress->setCity($parameters["work_city"]);
             $workAddress->setLatitude($parameters["work_address_lat"]);
             $workAddress->setLongitude($parameters["work_address_long"]);

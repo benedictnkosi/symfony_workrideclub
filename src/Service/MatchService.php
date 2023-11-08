@@ -429,6 +429,8 @@ class MatchService
 
                         // Add to the matches array
                         $matches[] = $commuterMatch;
+                    }else{
+                        $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
                     }
                 }
             }
