@@ -393,7 +393,7 @@ class MatchService
                     $this->logger->info("Commuter found: " . $passenger->getId());
 
                     if ($driver->getHomeAddress()->getState() != $passenger->getHomeAddress()->getState()) {
-                        $this->logger->info("State not the same");
+                        $this->logger->info("State not the same " . $driver->getHomeAddress()->getState() . " - " . $passenger->getHomeAddress()->getState());
                         continue;
                     }
 
