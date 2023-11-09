@@ -7,10 +7,12 @@
     <link rel="shortcut icon" href="/images/workrideclublogo.png"/>
     <title>Work Ride</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" >
-    <link href="/css/table.css" rel="stylesheet" >
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" ></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js" integrity="sha384-Atwg2Pkwv9vp0ygtn1JAojH0nYbwNJLPhwyoVbhoPwBhjQPR5VtM2+xf0Uwh9KtT" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/table.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js"
+            integrity="sha384-Atwg2Pkwv9vp0ygtn1JAojH0nYbwNJLPhwyoVbhoPwBhjQPR5VtM2+xf0Uwh9KtT"
+            crossorigin="anonymous"></script>
     <script type="module" src="/js/admin.js"></script>
     <script type="module" src="/js/admin_matched.js"></script>
 </head>
@@ -37,46 +39,62 @@
     </div>
 </nav>
 
-<div class="row">
-<div class="dropdown m-1" >
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonDriver" data-bs-toggle="dropdown" aria-expanded="false">
-        Filter By Driver
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButtonDriver" id="driver-ul"></ul>
-</div>
+<div class="m-1">
+    <div class="dropdown m-1" style="display: inline">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonDriver"
+                data-bs-toggle="dropdown" aria-expanded="false">
+            Filter By Driver
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButtonDriver" id="driver-ul"></ul>
+    </div>
 
-<div class="dropdown m-1">
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStatus" data-bs-toggle="dropdown" data-status="active" aria-expanded="false">
-        Active
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-        <li><a class="dropdown-item li-status-filter" href="#" data-status="active">Active</a></li>
-        <li><a class="dropdown-item li-status-filter" href="#" data-status="matched">Matched</a></li>
-        <li><a class="dropdown-item li-status-filter" href="#" data-status="driver_rejected">Driver Rejected</a></li>
-        <li><a class="dropdown-item li-status-filter" href="#" data-status="passenger_rejected">Passenger Rejected</a></li>
-    </ul>
-</div>
+    <div class="dropdown m-1" style="display: inline">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStatus"
+                data-bs-toggle="dropdown" data-status="active" aria-expanded="false">
+            Active
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li><a class="dropdown-item li-status-filter" href="#" data-status="active">Active</a></li>
+            <li><a class="dropdown-item li-status-filter" href="#" data-status="matched">Matched</a></li>
+            <li><a class="dropdown-item li-status-filter" href="#" data-status="driver_rejected">Driver Rejected</a>
+            </li>
+            <li><a class="dropdown-item li-status-filter" href="#" data-status="passenger_rejected">Passenger
+                Rejected</a></li>
+        </ul>
+    </div>
+    <div class="dropdown m-1" style="display: inline">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonTime"
+                data-bs-toggle="dropdown" data-time="20" aria-expanded="false">
+            20 Min
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li><a class="dropdown-item li-time-filter" href="#" data-time="20">20 Min</a></li>
+            <li><a class="dropdown-item li-time-filter" href="#" data-time="30">30 Min</a></li>
+            <li><a class="dropdown-item li-time-filter" href="#" data-time="60">60 Min</a></li>
+            <li><a class="dropdown-item li-time-filter" href="#" data-time="120">120 Min</a></li>
+        </ul>
+    </div>
 </div>
 <div class="tableFixHead">
-<table class="table">
-    <thead>
-    <tr>
-        <th scope="col">Driver</th>
-        <th scope="col">Passenger</th>
-        <th scope="col">D Home -> </th>
-        <th scope="col">D Work</th>
-        <th scope="col">P Home -> </th>
-        <th scope="col">P Work</th>
-        <th scope="col">+Mins</th>
-        <th scope="col">Status</th>
-        <th scope="col">D Status</th>
-        <th scope="col">P Status</th>
-    </tr>
-    </thead>
-    <tbody id="commuters-tbody">
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Driver</th>
+            <th scope="col">Passenger</th>
+            <th scope="col">D Home -></th>
+            <th scope="col">D Work</th>
+            <th scope="col">P Home -></th>
+            <th scope="col">P Work</th>
+            <th scope="col">+Mins</th>
+            <th scope="col">Status</th>
+            <th scope="col">D Status</th>
+            <th scope="col">P Status</th>
+        </tr>
+        </thead>
+        <tbody id="commuters-tbody">
 
-    </tbody>
-</table>
+        </tbody>
+    </table>
 </div>
 <div class="toast-container position-fixed top-0 end-0 p-3">
     <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">

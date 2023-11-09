@@ -224,7 +224,7 @@ class MatchService
             'map_link' => $mapLink);
     }
 
-    public function getAllMatches($driverId, $status): array
+    public function getAllMatches($driverId, $status, $time): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
@@ -236,7 +236,7 @@ class MatchService
                     ->andWhere('c.additionalTime < :max_time')
                     ->orderBy('c.additionalTime', 'ASC')
                     ->setParameter('status', $status)
-                    ->setParameter('max_time', $_ENV['MAX_ADDITIONAL_TIME'])
+                    ->setParameter('max_time', $time)
                     ->getQuery()
                     ->getResult();
             }else{

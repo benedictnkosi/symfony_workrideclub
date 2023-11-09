@@ -7,6 +7,14 @@ $(document).ready(function () {
         $('#dropdownMenuButtonStatus').text(event.target.getAttribute("data-status"));
         $('#dropdownMenuButtonStatus').attr("data-status", event.target.getAttribute("data-status"));
         // get attribute data-id and pass to getAlMatches
+        getAlMatches($('#dropdownMenuButtonStatus').attr("data-status"));
+    });
+
+    $('.li-time-filter').click(function(event){
+        //set text for dropdownMenuButtonStatus and data-status attribute
+        $('#dropdownMenuButtonTime').text(event.target.getAttribute("data-time"));
+        $('#dropdownMenuButtonTime').attr("data-time", event.target.getAttribute("data-time"));
+        // get attribute data-id and pass to getAlMatches
         getAlMatches("0");
     });
 
@@ -17,7 +25,7 @@ let driverNames = [];
 
 let getAlMatches = (driverId) => {
 
-  let url = "/api/matches/" + driverId + "/" + $('#dropdownMenuButtonStatus').attr("data-status");
+  let url = "/api/matches/" + driverId + "/" + $('#dropdownMenuButtonStatus').attr("data-status") + "/" + $('#dropdownMenuButtonTime').attr("data-time")
 
   $.ajax({
     url: url,
