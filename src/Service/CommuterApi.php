@@ -347,7 +347,7 @@ GROUP BY creation_day;";
             while ($results = $result->fetch_assoc()) {
                 $this->logger->info("found " . $results["creation_day"]);
                 $responseArray[] = array(
-                    'day' => $results["creation_day"],
+                    'day' => str_replace( "2023-", "", $results["creation_day"]),
                     'count' => $results["created_commuters"]
                 );
             }
