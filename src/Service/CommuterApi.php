@@ -111,9 +111,9 @@ class CommuterApi extends AbstractController
         $this->logger->info("Starting Method: " . __METHOD__);
 
         try {
-            if($type == "all" ){
+            if ($type == "all") {
                 $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => 'active'));
-            }else{
+            } else {
                 $commuters = $this->em->getRepository(Commuter::class)->findBy(array('type' => $type), array('created' => 'DESC'));
 
             }
@@ -148,7 +148,7 @@ class CommuterApi extends AbstractController
         $origin = $homeLat . "," . $homeLong;
         $destination = $workLat . "," . $workLong;
 
-        $url = "https://maps.googleapis.com/maps/api/directions/json?origin=" . $origin . "&destination=" . $destination . "&key=" . $_ENV['GOOGLE_API_KEY'] .  "&travelMode=driving";
+        $url = "https://maps.googleapis.com/maps/api/directions/json?origin=" . $origin . "&destination=" . $destination . "&key=" . $_ENV['GOOGLE_API_KEY'] . "&travelMode=driving";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -229,14 +229,14 @@ class CommuterApi extends AbstractController
                 );
             }
 
-            if($parameters["status"] == "deleted"){
+            if ($parameters["status"] == "deleted") {
                 //remove all matches
-                if($commuter->getType() == "driver"){
+                if ($commuter->getType() == "driver") {
                     $matches = $this->em->getRepository(CommuterMatch::class)->findBy(array('driver' => $commuter));
                     foreach ($matches as $match) {
                         $this->em->remove($match);
                     }
-                }else{
+                } else {
                     $matches = $this->em->getRepository(CommuterMatch::class)->findBy(array('passenger' => $commuter));
                     foreach ($matches as $match) {
                         $this->em->remove($match);
@@ -245,7 +245,7 @@ class CommuterApi extends AbstractController
                 //flush
                 $this->em->remove($commuter);
                 $this->em->flush();
-            }else{
+            } else {
                 $commuter->setStatus($parameters["status"]);
                 $this->em->persist($commuter);
                 $this->em->flush();
@@ -325,6 +325,34 @@ class CommuterApi extends AbstractController
                 'code' => "R01"
             );
         }
+    }
+
+    public function getRegistrationStats(): array
+    {
+        $this->logger->debug("Starting Method: " . __METHOD__);
+        $responseArray = array();
+
+
+        $sql = "SELECT DATE(created) AS creation_day, COUNT(*) AS created_commuters
+FROM commuter
+GROUP BY creation_day;";
+        $this->logger->info("sql " . $sql);
+
+        $databaseHelper = new DatabaseApi($this->logger);
+        $result = $databaseHelper->queryDatabase($sql);
+
+        if (!$result) {
+            return array();
+        } else {
+            while ($results = $result->fetch_assoc()) {
+                $this->logger->info("found " . $results["creation_day"]);
+                $responseArray[] = array(
+                    'day' => $results["creation_day"],
+                    'count' => $results["created_commuters"]
+                );
+            }
+        }
+        return $responseArray;
     }
 
 

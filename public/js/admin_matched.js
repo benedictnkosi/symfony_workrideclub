@@ -17,7 +17,6 @@ $(document).ready(function () {
         // get attribute data-id and pass to getAlMatches
         getAlMatches("0");
     });
-
 });
 
 let driverNames = [];

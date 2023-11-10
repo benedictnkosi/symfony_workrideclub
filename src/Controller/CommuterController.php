@@ -4,6 +4,7 @@ namespace App\Controller;
 
 
 use App\Service\CommuterApi;
+use App\Service\ExpenseApi;
 use App\Service\MatchService;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -124,6 +125,20 @@ class CommuterController extends AbstractController
         }
 
         $response = $commuterApi->getFBJoinedLastDays($driver, $days);
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
+     * @Route("api/registrations/daily")
+     */
+    public function getRegistrationsStats(Request $request, LoggerInterface $logger,CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('get')) {
+            return new JsonResponse("Method Not Allowed", 405, array());
+        }
+
+        $response = $commuterApi->getRegistrationStats();
         return new JsonResponse($response, 200, array());
     }
 }

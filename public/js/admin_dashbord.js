@@ -14,6 +14,8 @@ $(document).ready(function () {
     getFBJoiners("passenger", "6", "fbPassengers7days");
     getFBJoiners("driver", "365", "allFBDrivers");
     getFBJoiners("passenger", "365", "allFBPassengers");
+
+    generateRegistrationsGraph();
 });
 
 
@@ -57,3 +59,51 @@ let getFBJoiners = (type, days, elementId) => {
         }
     });
 };
+
+function generateRegistrationsGraph(){
+    let url = "/api/registrations/daily"
+    $.ajax({
+        type: "GET",
+        url: url,
+        contentType: "application/json; charset=UTF-8",
+        success: function (registrations) {
+            if(registrations.result_code !== undefined){
+                if(registrations.result_code === 1){
+                    return;
+                }
+            }
+            let chartStatus = Chart.getChart("lineChartRegistrations"); // <canvas> id
+            if (chartStatus !== undefined) {
+                chartStatus.destroy();
+            }
+
+            const labels = [];
+            const dataPoints = [];
+
+            registrations.forEach(function (registration) {
+                labels.push(registration.day);
+                dataPoints.push(registration.count);
+            });
+
+            var ctxL = document.getElementById("lineChartRegistrations").getContext('2d');
+            var myLineChart = new Chart(ctxL, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Registrations",
+                        data: dataPoints,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        },
+        error: function (xhr) {
+
+        }
+    });
+
+}
