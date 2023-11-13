@@ -92,7 +92,7 @@ class MatchService
                 $commuterMatch = new CommuterMatch();
                 $commuterMatch->setDriver($currentCommuter->getType() == "driver" ? $currentCommuter : $commuter);
                 $commuterMatch->setPassenger($currentCommuter->getType() == "passenger" ? $currentCommuter : $commuter);
-                $commuterMatch->setTotalTrip($travelTimeResponse["time"]);
+                $commuterMatch->setTotalTrip(intval($travelTimeResponse["time"]));
                 $commuterMatch->setDistanceHome(intval($travelTimeResponse["driverHomeToPassengerHomeDistance"]));
                 $commuterMatch->setDistanceWork(intval($travelTimeResponse["passengerWorkToDriverDistance"]));
                 $commuterMatch->setDurationHome(intval($travelTimeResponse["driverHomeToPassengerHomeTime"]));
@@ -415,11 +415,11 @@ class MatchService
                         $commuterMatch = new CommuterMatch();
                         $commuterMatch->setDriver($driver);
                         $commuterMatch->setPassenger($passenger);
-                        $commuterMatch->setTotalTrip($travelTimeResponse["time"]);
-                        $commuterMatch->setDistanceHome($travelTimeResponse["driverHomeToPassengerHomeDistance"]);
-                        $commuterMatch->setDistanceWork($travelTimeResponse["passengerWorkToDriverDistance"]);
-                        $commuterMatch->setDurationHome($travelTimeResponse["driverHomeToPassengerHomeTime"]);
-                        $commuterMatch->setDurationWork($travelTimeResponse["passengerWorkToDriverTime"]);
+                        $commuterMatch->setTotalTrip(intval($travelTimeResponse["time"]));
+                        $commuterMatch->setDistanceHome(intval($travelTimeResponse["driverHomeToPassengerHomeDistance"]));
+                        $commuterMatch->setDistanceWork(intval($travelTimeResponse["passengerWorkToDriverDistance"]));
+                        $commuterMatch->setDurationHome(intval($travelTimeResponse["driverHomeToPassengerHomeTime"]));
+                        $commuterMatch->setDurationWork(intval($travelTimeResponse["passengerWorkToDriverTime"]));
 
                         $driverTravelTime = $driver->getTravelTime();
 
