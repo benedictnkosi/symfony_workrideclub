@@ -385,7 +385,7 @@ class MatchService
             // Initialize an array to store commuter matches
             $matches = [];
             $commuters = [];
-
+            $numberOfMatches = 0;
             foreach ($driverCommuters as $driver) {
                 $this->logger->info("Driver found: " . $driver->getId());
                 $driver->setLastMatch(new \DateTime());
@@ -433,6 +433,15 @@ class MatchService
                         $matches[] = $commuterMatch;
                         $commuters[] = $passenger;
                         $commuters[] = $driver;
+                        $numberOfMatches++;
+
+                        if($numberOfMatches > 100){
+                            $this->logger->info("100 matches done");
+                            return [
+                                'message' => "100 matches done, Please run again to continue",
+                                'code' => "R00"
+                            ];
+                        }
                     }else{
                         $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
                     }
