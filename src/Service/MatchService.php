@@ -429,11 +429,21 @@ class MatchService
                         $commuterMatch->setPassengerStatus("pending");
                         $commuterMatch->setMapLink($travelTimeResponse["map_link"]);
 
+                        //flush
+                        $this->em->persist($commuterMatch);
+                        $this->em->flush();
+
+                        //flush passenger
+                        $this->em->persist($passenger);
+                        $this->em->flush();
+
                         // Add to the matches array
                         $matches[] = $commuterMatch;
                         $commuters[] = $passenger;
                         $commuters[] = $driver;
                         $numberOfMatches++;
+
+                        $this->logger->info("commuter match saved in DB");
 
                         if($numberOfMatches > 100){
                             $this->logger->info("100 matches done");
