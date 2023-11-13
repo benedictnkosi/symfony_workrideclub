@@ -429,28 +429,20 @@ class MatchService
                         $commuterMatch->setPassengerStatus("pending");
                         $commuterMatch->setMapLink($travelTimeResponse["map_link"]);
 
-                        //flush
-                        $this->em->persist($commuterMatch);
-                        $this->em->flush();
-
-                        //flush passenger
-                        $this->em->persist($passenger);
-                        $this->em->flush();
 
                         // Add to the matches array
-                        $matches[] = $commuterMatch;
-                        $commuters[] = $passenger;
-                        $commuters[] = $driver;
+
                         $numberOfMatches++;
 
                         $this->logger->info("commuter match saved in DB");
 
+                        $matches[] = $commuterMatch;
+                        $commuters[] = $passenger;
+                        $commuters[] = $driver;
+
                         if($numberOfMatches > 100){
                             $this->logger->info("100 matches done");
-                            return [
-                                'message' => "100 matches done, Please run again to continue",
-                                'code' => "R00"
-                            ];
+                            break;
                         }
                     }else{
                         $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
@@ -468,10 +460,22 @@ class MatchService
             }
             $this->em->flush();
 
-            return [
-                'message' => "Successfully matched commuters",
-                'code' => "R00"
-            ];
+
+
+            if($numberOfMatches > 100){
+                $this->logger->info("100 matches done");
+                return [
+                    'message' => "100 matches done, Please run again to continue",
+                    'code' => "R00"
+                ];
+            }else{
+                return [
+                    'message' => "Successfully matched commuters",
+                    'code' => "R00"
+                ];
+            }
+
+
         } catch (\Exception $e) {
             $this->logger->error("Error matching commuters " . $e->getMessage());
             return [
