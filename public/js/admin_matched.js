@@ -49,6 +49,15 @@ let getAlMatches = (driverId) => {
             tr.append("<td>" + data[i].status + "</td>");
             tr.append("<td>" + data[i].driver_status + "</td>");
             tr.append("<td>" + data[i].passenger_status + "</td>");
+            //add class name to tr
+            if(data[i].driver_status === "contacted" || data[i].passenger_status === "contacted"){
+                tr.addClass("contacted");
+            }else  if(data[i].driver_status === "accepted"){
+                tr.addClass("accepted");
+            }else  if(data[i].driver_status === "blocked"){
+                tr.addClass("blocked");
+            }
+            tr.addClass(data[i].driver_status);
             $('#commuters-tbody').append(tr);
 
             //add unique driver names to driverNames array
