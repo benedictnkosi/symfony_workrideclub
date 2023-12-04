@@ -590,13 +590,11 @@ class MatchService
                             $driver->getType() == "driver"
                         );
 
-                        $array = [
+                        return [
                             'driver' => $driver->getId(),
                             'passenger' => $passenger->getId(),
                             'url' => $url
                         ];
-
-                        $toMatch[] = $array;
                     }else{
                         $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
                     }
