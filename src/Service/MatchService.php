@@ -128,6 +128,59 @@ class MatchService
     }
 
     #[ArrayShape(['message' => "string", 'code' => "string"])]
+    public function writeMatchToDB($request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+
+            $parameters = json_decode($request->getContent(), true);
+
+            $this->logger->info("driver: " . $parameters["driver"]);
+
+            $driver = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => $parameters["driver"]));
+            $passenger = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => $parameters["passenger"]));
+            if ($driver == null || $passenger == null) {
+                return array(
+                    'message' => "Driver or passenger not found",
+                    'code' => "R01"
+                );
+            }
+
+            //write to database
+            $commuterMatch = new CommuterMatch();
+            $commuterMatch->setDriver($driver);
+            $commuterMatch->setPassenger($passenger);
+            $commuterMatch->setTotalTrip($parameters["totalTrip"]);
+            $commuterMatch->setDistanceHome(0);
+            $commuterMatch->setDistanceWork(0);
+            $commuterMatch->setDurationHome(0);
+            $commuterMatch->setDurationWork(0);
+
+            $commuterMatch->setAdditionalTime(intval($request->get("totalTrip") - $driver->getTravelTime()));
+            $commuterMatch->setStatus("active");
+            $commuterMatch->setDriverStatus("pending");
+            $commuterMatch->setPassengerStatus("pending");
+            $commuterMatch->setMapLink($request->get("mapLink"));
+            $this->em->persist($commuterMatch);
+            $this->em->flush();
+
+            return array(
+                'message' => "Successfully saved match",
+                'code' => "R00"
+            );
+
+        } catch (\Exception $e) {
+            $this->logger->error("Error saving match " . $e->getMessage());
+            return array(
+                'message' => "Error saving match",
+                'code' => "R01"
+            );
+        }
+    }
+
+
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
     public function unmatchCommuter($id): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -180,8 +233,16 @@ class MatchService
     }
 
 
+    function getURL(CommuterAddress $driverHome, CommuterAddress $passengerHome, CommuterAddress $passengerWork, CommuterAddress $driverWork, $isDriver): string
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+        $origin = $driverHome->getLatitude() . "," . $driverHome->getLongitude();
+        $destination = $driverWork->getLatitude() . "," . $driverWork->getLongitude();
+        return 'https://www.google.com/maps/dir/' . $origin . '/' . $passengerHome->getLatitude() . "," . $passengerHome->getLongitude() . '/' . $passengerWork->getLatitude() . "," . $passengerWork->getLongitude() . '/' . $destination;
+    }
+
     #[ArrayShape(['time' => "float|int", 'driverHomeToPassengerHomeDistance' => "float|int", 'passengerWorkToDriverDistance' => "float|int", 'driverHomeToPassengerHomeTime' => "float|int", 'passengerWorkToDriverTime' => "float|int", 'distance' => "float|int", 'map_link' => "string"])]
-    function calculateTravelTime(CommuterAddress $driverHome, CommuterAddress $passengerHome, CommuterAddress $passengerWork, CommuterAddress $driverWork, $isDriver): array
+    function calculateTravelTimeAPI(CommuterAddress $driverHome, CommuterAddress $passengerHome, CommuterAddress $passengerWork, CommuterAddress $driverWork, $isDriver): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         $origin = $driverHome->getLatitude() . "," . $driverHome->getLongitude();
@@ -480,6 +541,75 @@ class MatchService
             $this->logger->error("Error matching commuters " . $e->getMessage());
             return [
                 'message' => "Error matching commuters",
+                'code' => "R01"
+            ];
+        }
+    }
+
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
+    public function getAllUnmatched(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            // Find all active drivers
+            $driverCommuters = $this->em->getRepository(Commuter::class)
+                ->findBy(['type' => "driver", 'status' => "active"], ['created' => 'DESC']);
+
+            // Find all active passengers
+            $passengerCommuters = $this->em->getRepository(Commuter::class)
+                ->findBy(['status' => "active", 'type' => "passenger"]);
+
+            // Initialize an array to store commuter matches
+
+            $toMatch=  [];
+            foreach ($driverCommuters as $driver) {
+                $this->logger->info("Driver found: " . $driver->getId());
+                $driver->setLastMatch(new \DateTime());
+
+                foreach ($passengerCommuters as $passenger) {
+                    $this->logger->info("Commuter found: " . $passenger->getId());
+
+                    if ($driver->getHomeAddress()->getState() != $passenger->getHomeAddress()->getState()) {
+                        $this->logger->info("State not the same " . $driver->getHomeAddress()->getState() . " - " . $passenger->getHomeAddress()->getState());
+                        continue;
+                    }
+
+                    // Check if the commuter is already matched
+                    $isMatched = $this->isMatched($driver->getId(), $passenger->getId());
+
+
+
+                    if (!$isMatched) {
+                        $passenger->setLastMatch(new \DateTime());
+                        $url = $this->getURL(
+                            $driver->getHomeAddress(),
+                            $passenger->getHomeAddress(),
+                            $passenger->getWorkAddress(),
+                            $driver->getWorkAddress(),
+                            $driver->getType() == "driver"
+                        );
+
+                        $array = [
+                            'driver' => $driver->getId(),
+                            'passenger' => $passenger->getId(),
+                            'url' => $url
+                        ];
+
+                        $toMatch[] = $array;
+                    }else{
+                        $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
+                    }
+                }
+            }
+
+
+            return $toMatch;
+
+        } catch (\Exception $e) {
+            $this->logger->error("Error matching commuters " . $e->getMessage());
+            return [
+                'message' => "Error matching commuters"  . $e->getMessage(),
                 'code' => "R01"
             ];
         }

@@ -148,7 +148,7 @@ class CommuterApi extends AbstractController
         $origin = $homeLat . "," . $homeLong;
         $destination = $workLat . "," . $workLong;
 
-        $url = "https://maps.googleapis.com/maps/api/directions/json?origin=" . $origin . "&destination=" . $destination . "&key=" . $_ENV['GOOGLE_API_KEY'] . "&travelMode=driving";
+        $url = "https://www.google.com/maps/dir/-26.157075,27.864538/-26.2483676,27.9498404/-26.2933531,28.1102412/-26.2739937,28.125954/@-26.2198705,27.8304349,11z?entry=ttu";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

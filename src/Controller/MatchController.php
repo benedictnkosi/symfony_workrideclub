@@ -16,6 +16,48 @@ class MatchController extends AbstractController
 {
 
     /**
+     * @Route("api/tomatch")
+     */
+    public function getToMatch(Request $request, LoggerInterface $logger, MatchService $matchApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $matchApi->getAllUnmatched();
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
+     * @Route("api/savematch")
+     */
+    public function saveMatch(Request $request, LoggerInterface $logger, MatchService $matchApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('POST')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $matchApi->writeMatchToDB($request);
+
+        if($response["code"] == "R01"){
+            return new JsonResponse($response, 200, array());
+        }else{
+            return new JsonResponse($response, 201, array());
+        }
+    }
+
+
+    /**
      * @Route("api/matches/{driverId}/{status}/{time}")
      */
     public function getMatches($driverId,$status,$time, Request $request, LoggerInterface $logger, MatchService $matchApi): Response
