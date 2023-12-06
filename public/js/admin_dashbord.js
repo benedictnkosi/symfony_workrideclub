@@ -1,6 +1,6 @@
 //on page load
 $(document).ready(function () {
-    getUnmatched();
+    getMatchedCount();
     getJoiners("driver", "0", "driversToday");
     getJoiners("driver", "6", "drivers7days");
     getJoiners("passenger", "0", "passengersToday");
@@ -40,7 +40,7 @@ let getJoiners = (type, days, elementId) => {
   });
 };
 
-let getUnmatched = () => {
+let getMatchedCount = () => {
 
     let url = "/api/stats/unmatched";
 
