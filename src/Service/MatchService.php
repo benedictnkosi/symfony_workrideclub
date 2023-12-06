@@ -157,11 +157,11 @@ class MatchService
             $commuterMatch->setDurationHome(0);
             $commuterMatch->setDurationWork(0);
 
-            $commuterMatch->setAdditionalTime(intval($request->get("totalTrip") - $driver->getTravelTime()));
+            $commuterMatch->setAdditionalTime(intval($parameters["totalTrip"] - $driver->getTravelTime()));
             $commuterMatch->setStatus("active");
             $commuterMatch->setDriverStatus("pending");
             $commuterMatch->setPassengerStatus("pending");
-            $commuterMatch->setMapLink($request->get("mapLink"));
+            $commuterMatch->setMapLink($parameters["mapLink"]);
             $this->em->persist($commuterMatch);
             $this->em->flush();
 
