@@ -613,73 +613,29 @@ class MatchService
         }
     }
 
-    public function getAllUnmatchedNumber(): array
+    public function getMatchedNumber(): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
         try {
-            // Fetch drivers and passengers in smaller batches
-            $driverBatchSize = 100;
-            $passengerBatchSize = 100;
-            $count = 0;
             // Find all active drivers
-            $driverOffset = 0;
-            do {
-                $driverCommuters = $this->em->getRepository(Commuter::class)
-                    ->findBy(['type' => 'driver', 'status' => 'active'], ['created' => 'DESC'], $driverBatchSize, $driverOffset);
-
-                // Find all active passengers
-                $passengerOffset = 0;
-                do {
-                    $passengerCommuters = $this->em->getRepository(Commuter::class)
-                        ->findBy(['status' => 'active', 'type' => 'passenger'], null, $passengerBatchSize, $passengerOffset);
-
-                    // Process the current batch of drivers and passengers
-                    $count = $count +  $this->processBatch($driverCommuters, $passengerCommuters);
-
-                    $passengerOffset += $passengerBatchSize;
-                } while (!empty($passengerCommuters));
-
-                $driverOffset += $driverBatchSize;
-            } while (!empty($driverCommuters));
+            $commuterMatches = $this->em->getRepository(CommuterMatch::class)
+                ->findAll();
 
             return [
-                'message' => 'Successfully processed commuters',
-                'code' => 'R00',
-                'count' => $count
+                'message' => "Error matching commuters",
+                'code' => "R01",
+                'count' => sizeof($commuterMatches)
             ];
 
         } catch (\Exception $e) {
             $this->logger->error("Error matching commuters " . $e->getMessage());
             return [
                 'message' => "Error matching commuters"  . $e->getMessage(),
-                'code' => 'R01',
+                'code' => "R01"
             ];
         }
     }
-
-    private function processBatch(array $driverCommuters, array $passengerCommuters): int
-    {
-        $unmatched = 0;
-
-        foreach ($driverCommuters as $driver) {
-            $this->logger->info("Driver found: " . $driver->getId());
-            $driver->setLastMatch(new \DateTime());
-
-            foreach ($passengerCommuters as $passenger) {
-                if ($driver->getHomeAddress()->getState() == $passenger->getHomeAddress()->getState() &&
-                    !$this->isMatched($driver->getId(), $passenger->getId())) {
-                    $unmatched++;
-                }
-            }
-        }
-
-        // Additional processing or logging for the current batch, if needed
-
-        $this->logger->info("Processed batch with {$unmatched} unmatched commuters");
-        return $unmatched;
-    }
-
 
 
     private function isMatched($driverId, $passengerId): bool

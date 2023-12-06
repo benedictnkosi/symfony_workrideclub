@@ -29,7 +29,7 @@ class MatchController extends AbstractController
             return new JsonResponse($response, 405, array());
         }
 
-        $response = $matchApi->getAllUnmatchedNumber();
+        $response = $matchApi->getMatchedNumber();
         return new JsonResponse($response, 200, array());
     }
 
