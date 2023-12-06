@@ -138,8 +138,8 @@ class MatchService
 
             $this->logger->info("driver: " . $parameters["driver"]);
 
-            $driver = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => $parameters["driver"]));
-            $passenger = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => $parameters["passenger"]));
+            $driver = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => intval($parameters["driver"])));
+            $passenger = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => intval($parameters["passenger"])));
             if ($driver == null || $passenger == null) {
                 return array(
                     'message' => "Driver or passenger not found",
