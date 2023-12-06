@@ -70,6 +70,8 @@ let getAlMatches = (driverId) => {
         //loop through driverNames array and append to select with id driver-ul <li><a class="dropdown-item" href="#">Action</a></li>
         //on click, call getAlMatches with driver name as parameter
         // check if $('#driver-ul') is empty first
+        //empty $('#driver-ul') list first
+        $('#driver-ul').html("");
         for (let i = 0; i < driverNames.length; i++) {
             let li = $('<li/>');
             li.append(driverNames[i]);
