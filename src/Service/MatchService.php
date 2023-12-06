@@ -613,7 +613,6 @@ class MatchService
         }
     }
 
-    #[ArrayShape(['message' => "string", 'code' => "string"])]
     public function getAllUnmatchedNumber(): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -634,22 +633,16 @@ class MatchService
                 $driver->setLastMatch(new \DateTime());
 
                 foreach ($passengerCommuters as $passenger) {
-                    $this->logger->info("Commuter found: " . $passenger->getId());
 
                     if ($driver->getHomeAddress()->getState() != $passenger->getHomeAddress()->getState()) {
-                        $this->logger->info("State not the same " . $driver->getHomeAddress()->getState() . " - " . $passenger->getHomeAddress()->getState());
                         continue;
                     }
 
                     // Check if the commuter is already matched
                     $isMatched = $this->isMatched($driver->getId(), $passenger->getId());
 
-
-
                     if (!$isMatched) {
-                        $unmatched++;
-                    }else{
-                        $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
+                        $unmatched = $unmatched + 1;
                     }
                 }
             }
@@ -659,7 +652,7 @@ class MatchService
                 'message' => "Error matching commuters",
                 'code' => "R01",
                 'count' => $unmatched
-            ];;
+            ];
 
         } catch (\Exception $e) {
             $this->logger->error("Error matching commuters " . $e->getMessage());
