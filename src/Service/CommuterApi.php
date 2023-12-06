@@ -359,7 +359,7 @@ GROUP BY creation_day;";
         $this->logger->info("Starting Method: " . __METHOD__);
 
         try {
-            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('type' => 'driver', 'status' => 'active', 'travelTime' => null), array('created' => 'DESC'));
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('type' => 'driver', 'status' => 'active', 'travelTime' => 0), array('created' => 'DESC'));
             if (sizeof($commuters) == 0) {
                 return array(
                     'message' => "No commuters found",
