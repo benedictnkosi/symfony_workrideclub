@@ -613,6 +613,64 @@ class MatchService
         }
     }
 
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
+    public function getAllUnmatchedNumber(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            // Find all active drivers
+            $driverCommuters = $this->em->getRepository(Commuter::class)
+                ->findBy(['type' => "driver", 'status' => "active"], ['created' => 'DESC']);
+
+            // Find all active passengers
+            $passengerCommuters = $this->em->getRepository(Commuter::class)
+                ->findBy(['status' => "active", 'type' => "passenger"]);
+
+            // Initialize an array to store commuter matches
+            $unmatched = 0;
+            foreach ($driverCommuters as $driver) {
+                $this->logger->info("Driver found: " . $driver->getId());
+                $driver->setLastMatch(new \DateTime());
+
+                foreach ($passengerCommuters as $passenger) {
+                    $this->logger->info("Commuter found: " . $passenger->getId());
+
+                    if ($driver->getHomeAddress()->getState() != $passenger->getHomeAddress()->getState()) {
+                        $this->logger->info("State not the same " . $driver->getHomeAddress()->getState() . " - " . $passenger->getHomeAddress()->getState());
+                        continue;
+                    }
+
+                    // Check if the commuter is already matched
+                    $isMatched = $this->isMatched($driver->getId(), $passenger->getId());
+
+
+
+                    if (!$isMatched) {
+                        $unmatched++;
+                    }else{
+                        $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
+                    }
+                }
+            }
+
+
+            return [
+                'message' => "Error matching commuters",
+                'code' => "R01",
+                'count' => $unmatched
+            ];;
+
+        } catch (\Exception $e) {
+            $this->logger->error("Error matching commuters " . $e->getMessage());
+            return [
+                'message' => "Error matching commuters"  . $e->getMessage(),
+                'code' => "R01"
+            ];
+        }
+    }
+
+
     private function isMatched($driverId, $passengerId): bool
     {
         $query = $this->em->getRepository("App\Entity\CommuterMatch")

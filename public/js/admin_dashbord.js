@@ -1,5 +1,6 @@
 //on page load
 $(document).ready(function () {
+    getUnmatched();
     getJoiners("driver", "0", "driversToday");
     getJoiners("driver", "6", "drivers7days");
     getJoiners("passenger", "0", "passengersToday");
@@ -37,6 +38,26 @@ let getJoiners = (type, days, elementId) => {
         showToast("Request failed with status code: " + jqXHR.status);
     }
   });
+};
+
+let getUnmatched = () => {
+
+    let url = "/api/stats/unmatched";
+
+    $.ajax({
+        url: url,
+        type: "get",
+        contentType: "application/json",
+        success: function (response, textStatus, jqXHR) {
+            //convert json string to json object
+
+            $('#unmatched').html(response.count);
+
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            showToast("Request failed with status code: " + jqXHR.status);
+        }
+    });
 };
 
 

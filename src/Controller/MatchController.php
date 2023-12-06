@@ -16,6 +16,24 @@ class MatchController extends AbstractController
 {
 
     /**
+     * @Route("api/stats/unmatched")
+     */
+    public function getUnmatchedNumber(Request $request, LoggerInterface $logger, MatchService $matchApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $matchApi->getAllUnmatchedNumber();
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
      * @Route("api/tomatch")
      */
     public function getToMatch(Request $request, LoggerInterface $logger, MatchService $matchApi): Response
