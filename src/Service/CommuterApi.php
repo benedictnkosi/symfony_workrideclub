@@ -72,7 +72,7 @@ class CommuterApi extends AbstractController
             $this->logger->info("Work address created " . $workAddress->getId());
 
             //get driver travel time
-            $travelTime = $this->calculateDriverTravelTime($parameters["home_address_lat"], $parameters["home_address_long"], $parameters["work_address_lat"], $parameters["work_address_long"]);
+            //$travelTime = $this->calculateDriverTravelTime($parameters["home_address_lat"], $parameters["home_address_long"], $parameters["work_address_lat"], $parameters["work_address_long"]);
 
             $commuter = new Commuter();
             $commuter->setName($parameters["name"]);
@@ -84,7 +84,7 @@ class CommuterApi extends AbstractController
             $commuter->setWorkAddress($workAddress);
             $commuter->setStatus("active");
             $commuter->setType($parameters["type"]);
-            $commuter->setTravelTime($travelTime["time"]);
+            $commuter->setTravelTime(0);
             $commuter->setWorkDeparture($parameters["work_departure_time"]);
             $commuter->setHomeDeparture($parameters["home_departure_time"]);
             $commuter->setFuel($parameters["fuel_contribution"]);
@@ -210,7 +210,6 @@ class CommuterApi extends AbstractController
             );
         }
     }
-
 
     #[ArrayShape(['message' => "string", 'code' => "string"])]
     public function updateCommuterStatus($request): array
@@ -355,5 +354,68 @@ GROUP BY creation_day;";
         return $responseArray;
     }
 
+    public function getDriversWithNoTravelTime(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('type' => 'driver', 'status' => 'active', 'travelTime' => null), array('created' => 'DESC'));
+            if (sizeof($commuters) == 0) {
+                return array(
+                    'message' => "No commuters found",
+                    'code' => "R01"
+                );
+            }
+
+            $serializer = SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($commuters, 'json');
+
+            return array(
+                'message' => "commuters found",
+                'code' => "R00",
+                'commuters' => $jsonContent
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error creating commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuterS",
+                'code' => "R01"
+            );
+        }
+    }
+
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
+    public function updateDriverTravelTime($request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $parameters = json_decode($request->getContent(), true);
+
+            $commuter = $this->em->getRepository(Commuter::class)->findOneBy(array('id' => intval($parameters["id"])));
+
+            if ($commuter == null) {
+                return array(
+                    'message' => "Commuter not found",
+                    'code' => "R01"
+                );
+            }
+
+            $commuter->setTravelTime($parameters["travel_time"]);
+            $this->em->persist($commuter);
+            $this->em->flush();
+
+            return array(
+                'message' => "Status updated",
+                'code' => "R00"
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error finding commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuter",
+                'code' => "R01"
+            );
+        }
+    }
 
 }

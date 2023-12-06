@@ -57,6 +57,42 @@ class CommuterController extends AbstractController
     }
 
     /**
+     * @Route("api/newdrivers")
+     */
+    public function getDriversWithNoTravelTime(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('GET')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->getDriversWithNoTravelTime();
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
+     * @Route("api/update/commuter/traveltime")
+     */
+    public function updateDriverTravelTime(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('PUT')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->updateDriverTravelTime($request);
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
      * @Route("api/update/commuter/status")
      */
     public function updateDriverStatus(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
