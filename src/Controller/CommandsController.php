@@ -29,7 +29,7 @@ class CommandsController extends AbstractController
             echo "exec is not enabled";
         }
 
-        $command = 'wget https://durbanmarkets.durban.gov.za/';
+        $command = 'wget --no-check-certificate https://durbanmarkets.durban.gov.za/';
         $result = $this->execute($command);
         $responseArray[] = array(
             'command' =>  $command,
