@@ -18,6 +18,30 @@ class CommandsController extends AbstractController
 {
 
     /**
+     * @Route("no_auth/getmarketprices")
+     */
+    public function getmarketprices(LoggerInterface $logger): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if(function_exists('exec')) {
+            echo "exec is enabled";
+        }else{
+            echo "exec is not enabled";
+        }
+
+        $command = 'curl https://durbanmarkets.durban.gov.za/';
+        $result = $this->execute($command);
+        $responseArray[] = array(
+            'command' =>  $command,
+            'result_message' => print_r($result, true),
+            'result_code' => 0
+        );
+
+
+        return new JsonResponse( $responseArray, 200, array());
+    }
+
+    /**
      * @Route("no_auth/runcommand/clear")
      */
     public function clearSymfony(LoggerInterface $logger): Response
