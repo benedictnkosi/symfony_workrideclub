@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\PepperPrices;
 use App\Helpers\DatabaseHelper;
 use App\Service\PropertyApi;
+use DateTime;
 use DOMDocument;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -21,6 +22,7 @@ class CommandsController extends AbstractController
 
     /**
      * @Route("no_auth/getmarketprices")
+     * @throws Exception
      */
     public function getmarketprices(LoggerInterface $logger, EntityManagerInterface $entityManager): Response
     {
@@ -35,22 +37,21 @@ class CommandsController extends AbstractController
         $currentDirectory = getcwd();
         $filename = $currentDirectory . '\\..\\src\\controller\\index.html'; // Replace 'example.txt' with the name of the file you want to delete
 
-        if (file_exists($filename)) {
-            if (unlink($filename)) {
-                echo "File '$filename' has been deleted.";
-            } else {
-                echo "Unable to delete file '$filename'.";
-            }
-        } else {
-            $responseArray[] = array(
-
-                'result_code' => "File '$filename' does not exist."
-            );
-
-        }
-
-        $command = 'wget --no-check-certificate https://durbanmarkets.durban.gov.za/';
-        $this->execute($command);
+//        if (file_exists($filename)) {
+//            if (unlink($filename)) {
+//                echo "File '$filename' has been deleted.";
+//            } else {
+//                echo "Unable to delete file '$filename'.";
+//            }
+//        } else {
+//            $responseArray[] = array(
+//
+//                'result_code' => "File '$filename' does not exist."
+//            );
+//        }
+//
+//        $command = 'wget --no-check-certificate https://durbanmarkets.durban.gov.za/';
+//        $this->execute($command);
 
         if (file_exists($filename)) {
             $contents = file_get_contents($filename);
@@ -83,6 +84,9 @@ class CommandsController extends AbstractController
                         $salesTotal = (str_replace('>', "",$salesTotal));
                         $totalKgSold = (str_replace('</td>', "",$cells[10]));
                         $totalKgSold = (str_replace('>', "",$totalKgSold));
+                        $date = (str_replace('</td>', "",$cells[13]));
+                        $date = (str_replace('>', "",$date));
+                        $date = trim(str_replace('</tr', "",$date));
 
                         $logger->info("weight: " . doubleval($weight));
                         $logger->info("low: " .  doubleval($low));
@@ -91,7 +95,30 @@ class CommandsController extends AbstractController
                         $logger->info("salesTotal: " .  intval($salesTotal));
                         $logger->info("totalKgSold: " . intval($totalKgSold));
 
+                        //check if records for date already exist
+                        $dateFormat = 'd/M/Y';
+                        $dateTimeObject = DateTime::createFromFormat($dateFormat, $date);
+                        $logger->info("date time object " . print_r($dateTimeObject->format('Y-m-d'), true));
+
+                        $existingPrices = $entityManager->getRepository("App\Entity\PepperPrices")->createQueryBuilder('p')
+                            ->where("p.date LIKE :date")
+                            ->setParameter('date', "%" . $dateTimeObject->format('Y-m-d') . "%")
+                            ->getQuery()
+                            ->getResult();
+
+                        //log query
+                        $logger->info("query: " . print_r($existingPrices, true));
+                        if(sizeof($existingPrices)>0){
+                            $responseArray[] = array(
+                                'result_code' => "Records found for date"
+                            );
+
+                            return new JsonResponse($responseArray, 200, array());
+                        }
+
                         if(intval($totalKgSold)>0){
+
+
                             $pepperPrice = new PepperPrices();
                             $pepperPrice->setCommodity($commodity);
                             $pepperPrice->setWeight(doubleval($weight));
@@ -100,8 +127,8 @@ class CommandsController extends AbstractController
                             $pepperPrice->setAverage(doubleval($average));
                             $pepperPrice->setSalesTotal(intval($salesTotal));
                             $pepperPrice->setTotalKgSold(intval($totalKgSold));
-                            $pepperPrice->setDate(new \DateTime());
-                            $logger->info("pepper object " . print_r($pepperPrice));
+                            $pepperPrice->setDate($dateTimeObject);
+                            $logger->info("pepper date " . print_r($dateTimeObject->format('Y-m-d'), true));
                             $entityManager->persist($pepperPrice);
                         }
                     } else {
@@ -110,17 +137,22 @@ class CommandsController extends AbstractController
                 }
                 $entityManager->flush();
                 $logger->info("peppersArray: " . print_r($peppersArray, true));
+
+                $responseArray[] = array(
+                    'result_code' => "File processed"
+                );
             } else {
-                $logger->info("Unable to read file '$filename'.");
+                $logger->error("Unable to read file '$filename'.");
+                $responseArray[] = array(
+                    'result_code' => "Unable to read file '$filename'."
+                );
             }
         } else {
             $logger->error("File '$filename' does not exist.");
+            $responseArray[] = array(
+                'result_code' => "File '$filename' does not exist."
+            );
         }
-
-
-        $responseArray[] = array(
-            'result_code' => "File '$filename' does not exist."
-        );
 
         return new JsonResponse($responseArray, 200, array());
     }
