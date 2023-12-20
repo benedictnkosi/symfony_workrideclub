@@ -168,13 +168,12 @@ class CommandsController extends AbstractController
     }
 
     /**
-     * @Route("no_auth/getavgmonthlymarketprices")
+     * @Route("no_auth/getavgmonthlymarketprices/{weight}")
      * @throws Exception
      */
-    public function getMonthlyPriceHistory(LoggerInterface $logger, EntityManagerInterface $entityManager): Response
+    public function getMonthlyPriceHistory($weight,LoggerInterface $logger, EntityManagerInterface $entityManager): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        $peppersArray[] = array();
 
         $sql = "
             SELECT
@@ -183,6 +182,8 @@ class CommandsController extends AbstractController
     AVG(average) AS average_price
 FROM
     pepper_prices
+WHERE 
+    weight = $weight
 GROUP BY
     commodity, month;
         ";
