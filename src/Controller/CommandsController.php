@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\PepperPrices;
 use App\Helpers\DatabaseHelper;
+use App\Service\DatabaseApi;
 use App\Service\PropertyApi;
 use DateTime;
 use DOMDocument;
@@ -35,23 +36,23 @@ class CommandsController extends AbstractController
         }
 
         $currentDirectory = getcwd();
-        $filename = $currentDirectory . '\\..\\src\\controller\\index.html'; // Replace 'example.txt' with the name of the file you want to delete
+        $filename = '/home/workrqtd/public_html/workride/src/Controller/index.html';
 
-//        if (file_exists($filename)) {
-//            if (unlink($filename)) {
-//                echo "File '$filename' has been deleted.";
-//            } else {
-//                echo "Unable to delete file '$filename'.";
-//            }
-//        } else {
-//            $responseArray[] = array(
-//
-//                'result_code' => "File '$filename' does not exist."
-//            );
-//        }
-//
-//        $command = 'wget --no-check-certificate https://durbanmarkets.durban.gov.za/';
-//        $this->execute($command);
+        if (file_exists($filename)) {
+            if (unlink($filename)) {
+                echo "File '$filename' has been deleted.";
+            } else {
+                echo "Unable to delete file '$filename'.";
+            }
+        } else {
+            $responseArray[] = array(
+
+                'result_code' => "File '$filename' does not exist."
+            );
+        }
+
+        $command = 'wget --no-check-certificate https://durbanmarkets.durban.gov.za/';
+        $this->execute($command);
 
         if (file_exists($filename)) {
             $contents = file_get_contents($filename);
@@ -74,6 +75,8 @@ class CommandsController extends AbstractController
 
                         $weight = (str_replace('</td>', "",$cells[2]));
                         $weight = (str_replace('>', "",$weight));
+                        $container = (str_replace('</td>', "",$cells[4]));
+                        $container = (str_replace('>', "",$container));
                         $low = (str_replace('</td>', "",$cells[6]));
                         $low = (str_replace('>', "",$low));
                         $high = (str_replace('</td>', "",$cells[7]));
@@ -88,12 +91,18 @@ class CommandsController extends AbstractController
                         $date = (str_replace('>', "",$date));
                         $date = trim(str_replace('</tr', "",$date));
 
+//                        if($weight != 5){
+//                            continue;
+//                        }
+
                         $logger->info("weight: " . doubleval($weight));
                         $logger->info("low: " .  doubleval($low));
                         $logger->info("high: " .  doubleval($high));
                         $logger->info("average: " .  doubleval($average));
                         $logger->info("salesTotal: " .  intval($salesTotal));
                         $logger->info("totalKgSold: " . intval($totalKgSold));
+                        $logger->info("date: " . $date);
+
 
                         //check if records for date already exist
                         $dateFormat = 'd/M/Y';
@@ -128,6 +137,7 @@ class CommandsController extends AbstractController
                             $pepperPrice->setSalesTotal(intval($salesTotal));
                             $pepperPrice->setTotalKgSold(intval($totalKgSold));
                             $pepperPrice->setDate($dateTimeObject);
+                            $pepperPrice->setContainer($container);
                             $logger->info("pepper date " . print_r($dateTimeObject->format('Y-m-d'), true));
                             $entityManager->persist($pepperPrice);
                         }
@@ -152,6 +162,90 @@ class CommandsController extends AbstractController
             $responseArray[] = array(
                 'result_code' => "File '$filename' does not exist."
             );
+        }
+
+        return new JsonResponse($responseArray, 200, array());
+    }
+
+    /**
+     * @Route("no_auth/getavgmonthlymarketprices")
+     * @throws Exception
+     */
+    public function getMonthlyPriceHistory(LoggerInterface $logger, EntityManagerInterface $entityManager): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        $peppersArray[] = array();
+
+        $sql = "
+            SELECT
+    commodity,
+    DATE_FORMAT(date, '%Y-%m') AS month,
+    AVG(average) AS average_price
+FROM
+    pepper_prices
+GROUP BY
+    commodity, month;
+        ";
+
+        $databaseHelper = new DatabaseApi($logger);
+        $averagePrices = $databaseHelper->queryDatabase($sql);
+
+        foreach ($averagePrices as $result) {
+            // Access individual fields
+            $commodity = $result['commodity'];
+            $month = $result['month'];
+            $averagePrice = $result['average_price'];
+
+            // Do something with the data, e.g., print or process
+            $responseArray[] = array(
+                'commodity' => $commodity,
+                'month' => $month,
+                'average_price' => $averagePrice
+            );
+            $logger->info("$commodity - $month: $averagePrice\n");
+        }
+
+        return new JsonResponse($responseArray, 200, array());
+    }
+
+    /**
+     * @Route("no_auth/getdailymarketprices")
+     * @throws Exception
+     */
+    public function getDailyPriceHistory(LoggerInterface $logger, EntityManagerInterface $entityManager): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+
+        $sql = "
+            SELECT * FROM
+    pepper_prices";
+
+        $databaseHelper = new DatabaseApi($logger);
+        $averagePrices = $databaseHelper->queryDatabase($sql);
+
+        foreach ($averagePrices as $result) {
+            // Access individual fields
+            $commodity = $result['commodity'];
+            $date = $result['date'];
+            $price = $result['average'];
+            $weight = $result['weight'];
+            $low = $result['low'];
+            $high = $result['high'];
+            $total_kg_sold = $result['total_kg_sold'];
+            $container = $result['container'];
+
+            // Do something with the data, e.g., print or process
+            $responseArray[] = array(
+                'commodity' => $commodity,
+                'date' => $date,
+                'price' => $price,
+                'weight' => $weight,
+                'low' => $low,
+                'high' => $high,
+                'total_kg_sold' => $total_kg_sold,
+                'container' => $container
+            );
+
         }
 
         return new JsonResponse($responseArray, 200, array());

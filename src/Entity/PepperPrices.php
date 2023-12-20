@@ -89,6 +89,14 @@ class PepperPrices
     private $date;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(name="commodity", type="string", length=45, nullable=true)
+     */
+    #[ORM\Column(type: "string", length: 200, nullable: true)]
+    private $container;
+
+    /**
      * @return int
      */
     public function getId(): int
@@ -232,5 +240,20 @@ class PepperPrices
         $this->date = $date;
     }
 
+    /**
+     * @return string|null
+     */
+    public function getContainer(): ?string
+    {
+        return $this->container;
+    }
+
+    /**
+     * @param string|null $container
+     */
+    public function setContainer(?string $container): void
+    {
+        $this->container = $container;
+    }
 
 }
