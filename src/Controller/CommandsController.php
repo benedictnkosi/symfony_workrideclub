@@ -65,7 +65,7 @@ class CommandsController extends AbstractController
                 $rows = explode('<tr', $html);
                 foreach ($rows as $row) {
                     //$logger->info("row: " . $row);
-                    if ((str_contains($row, 'PEPPERS RED') || str_contains($row, 'PEPPERS YELLOW')) && !str_contains($row, 'option')) {
+                    if ((str_contains($row, 'PEPPERS RED') || str_contains($row, 'PEPPERS YELLOW') || str_contains($row, 'PEPPERS GREEN')) && !str_contains($row, 'option')) {
                         $cells = explode('<td', $row);
                         $logger->info("cells: " . print_r($cells, true));
                         $commodity = 'PEPPERS YELLOW';
