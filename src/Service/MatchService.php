@@ -578,8 +578,6 @@ class MatchService
                     // Check if the commuter is already matched
                     $isMatched = $this->isMatched($driver->getId(), $passenger->getId());
 
-
-
                     if (!$isMatched) {
                         $passenger->setLastMatch(new \DateTime());
                         $url = $this->getURL(
