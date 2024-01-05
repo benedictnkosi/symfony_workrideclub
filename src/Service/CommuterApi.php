@@ -242,13 +242,13 @@ class CommuterApi extends AbstractController
                     }
                 }
                 //flush
-                $this->em->remove($commuter);
-                $this->em->flush();
+                $commuter->setStatus($parameters["status"]);
+                $this->em->persist($commuter);
             } else {
                 $commuter->setStatus($parameters["status"]);
                 $this->em->persist($commuter);
-                $this->em->flush();
             }
+            $this->em->flush();
 
             return array(
                 'message' => "Status updated",
