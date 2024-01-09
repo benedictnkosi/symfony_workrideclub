@@ -111,6 +111,24 @@ class CommuterController extends AbstractController
     }
 
     /**
+     * @Route("api/remove/broken")
+     */
+    public function removeBrokenStatus(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        if (!$request->isMethod('PUT')) {
+            $response = array(
+                'message' => "Method Not Allowed",
+                'code' => "R01"
+            );
+            return new JsonResponse($response, 405, array());
+        }
+
+        $response = $commuterApi->removeBrokenStatus();
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
      * @Route("api/update/commuter/phone")
      */
     public function updateCommuterPhone(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response

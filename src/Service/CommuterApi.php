@@ -263,6 +263,44 @@ class CommuterApi extends AbstractController
         }
     }
 
+
+    #[ArrayShape(['message' => "string", 'code' => "string"])]
+    public function removeBrokenStatus(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+
+            $commuters = $this->em->getRepository(Commuter::class)->findOneBy(array('status' => 'broken'));
+
+            if (sizeof($commuters) < 1) {
+                return array(
+                    'message' => "Commuters not found",
+                    'code' => "R01"
+                );
+            }
+
+           foreach ($commuters as $commuter) {
+               //remove all matches
+               $commuter->setStatus("active");
+               $this->em->persist($commuter);
+           }
+
+            $this->em->flush();
+
+            return array(
+                'message' => "Status updated",
+                'code' => "R00"
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error finding commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuter",
+                'code' => "R01"
+            );
+        }
+    }
+
     public function getJoinedLastDays($type, $days): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
