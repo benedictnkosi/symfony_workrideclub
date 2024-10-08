@@ -67,9 +67,9 @@ class MatchController extends AbstractController
 
         $response = $matchApi->writeMatchToDB($request);
 
-        if($response["code"] == "R01"){
+        if ($response["code"] == "R01") {
             return new JsonResponse($response, 200, array());
-        }else{
+        } else {
             return new JsonResponse($response, 201, array());
         }
     }
@@ -78,7 +78,7 @@ class MatchController extends AbstractController
     /**
      * @Route("api/matches/{driverId}/{status}/{time}")
      */
-    public function getMatches($driverId,$status,$time, Request $request, LoggerInterface $logger, MatchService $matchApi): Response
+    public function getMatches($driverId, $status, $time, Request $request, LoggerInterface $logger, MatchService $matchApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {
@@ -151,7 +151,7 @@ class MatchController extends AbstractController
     /**
      * @Route("api/drivers/matchall")
      */
-    public function matchAllDrivers( Request $request, LoggerInterface $logger, MatchService $matchApi): Response
+    public function matchAllDrivers(Request $request, LoggerInterface $logger, MatchService $matchApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
         if (!$request->isMethod('GET')) {

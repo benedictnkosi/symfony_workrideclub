@@ -181,7 +181,6 @@ class MatchService
         }
     }
 
-
     #[ArrayShape(['message' => "string", 'code' => "string"])]
     public function unmatchCommuter($id): array
     {
@@ -233,7 +232,6 @@ class MatchService
             );
         }
     }
-
 
     function getURL(CommuterAddress $driverHome, CommuterAddress $passengerHome, CommuterAddress $passengerWork, CommuterAddress $driverWork, $isDriver): string
     {
@@ -591,11 +589,41 @@ class MatchService
                             $driver->getType() == "driver"
                         );
 
-                        return [
-                            'driver' => $driver->getId(),
-                            'passenger' => $passenger->getId(),
-                            'url' => $url
-                        ];
+                        $extraDistance = $this->calculateExtraDistance(
+                            $driver->getHomeAddress(),
+                            $driver->getWorkAddress(),
+                            $passenger->getHomeAddress(),
+                            $passenger->getWorkAddress()
+                        );
+
+                        if ($extraDistance > 5) {
+
+                            $commuterMatch = new CommuterMatch();
+                            $commuterMatch->setDriver($driver);
+                            $commuterMatch->setPassenger($passenger);
+                            $commuterMatch->setTotalTrip(999);
+                            $commuterMatch->setDistanceHome(0);
+                            $commuterMatch->setDistanceWork(0);
+                            $commuterMatch->setDurationHome(0);
+                            $commuterMatch->setDurationWork(0);
+
+                            $commuterMatch->setAdditionalTime(999);
+                            $commuterMatch->setStatus("ai_costly");
+                            $commuterMatch->setDriverStatus("ai_costly");
+                            $commuterMatch->setPassengerStatus("costly");
+                            $commuterMatch->setMapLink("");
+                            $this->em->persist($commuterMatch);
+                            $this->em->flush();
+
+                            $this->logger->info("Match found but extra distance to costly- " . $extraDistance . " - " . $passenger->getName() . " - " . $driver->getName());
+                        } else {
+                            return [
+                                'driver' => $driver->getId(),
+                                'passenger' => $passenger->getId(),
+                                'url' => $url,
+                                'extraDistance' => $extraDistance
+                            ];
+                        }
                     } else {
                         $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
                     }
@@ -612,6 +640,92 @@ class MatchService
                 'code' => "R01"
             ];
         }
+    }
+
+    public function calculateExtraDistance(CommuterAddress $driverHome, CommuterAddress $driverWork, CommuterAddress $passengerHome, CommuterAddress $passengerWork): float
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        $earthRadius = 6371; // Radius of the earth in km
+
+        // Convert degrees to radians
+        $latFrom = deg2rad($driverHome->getLatitude());
+        $lonFrom = deg2rad($driverHome->getLongitude());
+        $latTo = deg2rad($driverWork->getLatitude());
+        $lonTo = deg2rad($driverWork->getLongitude());
+
+        // Haversine formula to calculate the distance between two points
+        $latDelta = $latTo - $latFrom;
+        $lonDelta = $lonTo - $lonFrom;
+
+        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+            cos($latFrom) * cos($latTo) *
+            sin($lonDelta / 2) * sin($lonDelta / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        $directDistance = $earthRadius * $c;
+
+        // Calculate distance with passenger pickup
+        $latToPassengerHome = deg2rad($passengerHome->getLatitude());
+        $lonToPassengerHome = deg2rad($passengerHome->getLongitude());
+        $latToPassengerWork = deg2rad($passengerWork->getLatitude());
+        $lonToPassengerWork = deg2rad($passengerWork->getLongitude());
+
+        // Driver home to passenger home
+        $latDelta = $latToPassengerHome - $latFrom;
+        $lonDelta = $lonToPassengerHome - $lonFrom;
+        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+            cos($latFrom) * cos($latToPassengerHome) *
+            sin($lonDelta / 2) * sin($lonDelta / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $driverToPassengerHomeDistance = $earthRadius * $c;
+
+        // Passenger home to passenger work
+        $latDelta = $latToPassengerWork - $latToPassengerHome;
+        $lonDelta = $lonToPassengerWork - $lonToPassengerHome;
+        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+            cos($latToPassengerHome) * cos($latToPassengerWork) *
+            sin($lonDelta / 2) * sin($lonDelta / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $passengerHomeToWorkDistance = $earthRadius * $c;
+
+        // Passenger work to driver work
+        $latDelta = $latTo - $latToPassengerWork;
+        $lonDelta = $lonTo - $lonToPassengerWork;
+        $a = sin($latDelta / 2) * sin($latDelta / 2) +
+            cos($latToPassengerWork) * cos($latTo) *
+            sin($lonDelta / 2) * sin($lonDelta / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $passengerWorkToDriverWorkDistance = $earthRadius * $c;
+
+        // Total distance with passenger pickup
+        $pickupDistance = $driverToPassengerHomeDistance + $passengerHomeToWorkDistance + $passengerWorkToDriverWorkDistance;
+
+        // Calculate extra distance
+        $extraDistance = $pickupDistance - $directDistance;
+
+        return $extraDistance;
+    }
+
+    private function getGoogleMapsApiResponse(string $url): array
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $responseData = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($responseData, true);
+    }
+
+    private function extractDistanceFromResponse(array $response): float
+    {
+        $legs = $response['routes'][0]['legs'];
+        $totalDistance = 0;
+        foreach ($legs as $leg) {
+            $totalDistance += $leg['distance']['value'];
+        }
+        return $totalDistance;
     }
 
     public function getMatchedNumber(): array
