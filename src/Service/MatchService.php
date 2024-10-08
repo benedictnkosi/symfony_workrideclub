@@ -73,10 +73,12 @@ class MatchService
                     ->getQuery()
                     ->getResult();
 
-                if(sizeof($matches) > 0){
+                //if already matched
+                if (sizeof($matches) > 0) {
                     $this->logger->info("Match found - " . $commuter->getName() . " - " . $currentCommuter->getName());
                     continue;
                 }
+
                 $driver = $currentCommuter->getType() == "driver" ? $currentCommuter : $commuter;
                 $passenger = $currentCommuter->getType() == "passenger" ? $currentCommuter : $commuter;
 
@@ -100,11 +102,11 @@ class MatchService
 
                 if ($currentCommuter->getType() == "passenger") {
                     $driverTravelTime = $commuter->getTravelTime();
-                }else{
+                } else {
                     $driverTravelTime = $currentCommuter->getTravelTime();
                 }
 
-                $commuterMatch->setAdditionalTime(intval($travelTimeResponse["time"] - $driverTravelTime ));
+                $commuterMatch->setAdditionalTime(intval($travelTimeResponse["time"] - $driverTravelTime));
                 $commuterMatch->setStatus("active");
                 $commuterMatch->setDriverStatus("pending");
                 $commuterMatch->setPassengerStatus("pending");
@@ -197,7 +199,7 @@ class MatchService
             $type = "passenger";
             if ($currentCommuter->getType() == "passenger") {
                 $matches = $this->em->getRepository(CommuterMatch::class)->findBy(array('passenger' => $currentCommuter->getId()));
-            }else{
+            } else {
                 $matches = $this->em->getRepository(CommuterMatch::class)->findBy(array('driver' => $currentCommuter->getId()));
             }
 
@@ -242,7 +244,7 @@ class MatchService
     }
 
     #[ArrayShape(['time' => "float|int", 'driverHomeToPassengerHomeDistance' => "float|int", 'passengerWorkToDriverDistance' => "float|int", 'driverHomeToPassengerHomeTime' => "float|int", 'passengerWorkToDriverTime' => "float|int", 'distance' => "float|int", 'map_link' => "string"])]
-    function calculateTravelTimeAPI(CommuterAddress $driverHome, CommuterAddress $passengerHome, CommuterAddress $passengerWork, CommuterAddress $driverWork, $isDriver): array
+    function calculateTravelTime(CommuterAddress $driverHome, CommuterAddress $passengerHome, CommuterAddress $passengerWork, CommuterAddress $driverWork, $isDriver): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
         $origin = $driverHome->getLatitude() . "," . $driverHome->getLongitude();
@@ -264,7 +266,7 @@ class MatchService
         $response_a = json_decode($responseData, true);
         // Extract the "legs" array from the response
 
-// Loop through each step in the legs
+
         $legs = $response_a['routes'][0]['legs'];
         $totalTravelTimeMinutes = 0;
         $totalTravelDistance = 0;
@@ -282,7 +284,8 @@ class MatchService
             'driverHomeToPassengerHomeTime' => $legs[0]['duration']['value'] / 60,
             'passengerWorkToDriverTime' => $legs[2]['duration']['value'] / 60,
             'distance' => $totalTravelDistance / 1000,
-            'map_link' => $mapLink);
+            'map_link' => $mapLink
+        );
     }
 
     public function getAllMatches($driverId, $status, $time): array
@@ -291,7 +294,7 @@ class MatchService
 
         try {
 
-            if($driverId === '0'){
+            if ($driverId === '0') {
                 $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
                     ->where('c.status = :status')
                     ->andWhere('c.additionalTime < :max_time')
@@ -300,7 +303,7 @@ class MatchService
                     ->setParameter('max_time', $time)
                     ->getQuery()
                     ->getResult();
-            }else{
+            } else {
                 $matches = $this->em->getRepository("App\Entity\CommuterMatch")->createQueryBuilder('c')
                     ->where('c.status = :status')
                     ->andWhere('c.driver = :driverId')
@@ -386,29 +389,29 @@ class MatchService
                 );
             }
 
-            if($parameters["commuter_type"] == "driver"){
+            if ($parameters["commuter_type"] == "driver") {
                 $match->setDriverStatus($parameters["status"]);
-                if($parameters["status"] == "rejected"){
+                if ($parameters["status"] == "rejected") {
                     $match->setStatus("driver_rejected");
-                }elseif ($parameters["status"] == "accepted"){
-                    if($match->getPassengerStatus() == "accepted"){
+                } elseif ($parameters["status"] == "accepted") {
+                    if ($match->getPassengerStatus() == "accepted") {
                         $match->setStatus("matched");
-                    }else{
+                    } else {
                         $match->setStatus("active");
                     }
                 }
-            }else if($parameters["commuter_type"] == "passenger"){
+            } else if ($parameters["commuter_type"] == "passenger") {
                 $match->setPassengerStatus($parameters["status"]);
-                if($parameters["status"] == "rejected"){
+                if ($parameters["status"] == "rejected") {
                     $match->setStatus("passenger_rejected");
-                }elseif ($parameters["status"] == "accepted"){
-                    if($match->getDriverStatus() == "accepted"){
+                } elseif ($parameters["status"] == "accepted") {
+                    if ($match->getDriverStatus() == "accepted") {
                         $match->setStatus("matched");
-                    }else{
+                    } else {
                         $match->setStatus("active");
                     }
                 }
-            }else {
+            } else {
                 $match->setStatus($parameters["status"]);
             }
 
@@ -501,11 +504,11 @@ class MatchService
                         $commuters[] = $passenger;
                         $commuters[] = $driver;
 
-                        if($numberOfMatches > 100){
+                        if ($numberOfMatches > 100) {
                             $this->logger->info("100 matches done");
                             break;
                         }
-                    }else{
+                    } else {
                         $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
                     }
                 }
@@ -523,13 +526,13 @@ class MatchService
 
 
 
-            if($numberOfMatches > 100){
+            if ($numberOfMatches > 100) {
                 $this->logger->info("100 matches done");
                 return [
                     'message' => "100 matches done, Please run again to continue",
                     'code' => "R00"
                 ];
-            }else{
+            } else {
                 return [
                     'message' => "Successfully matched commuters",
                     'code' => "R00"
@@ -562,7 +565,7 @@ class MatchService
 
             // Initialize an array to store commuter matches
 
-            $toMatch=  [];
+            $toMatch = [];
             foreach ($driverCommuters as $driver) {
                 $this->logger->info("Driver found: " . $driver->getId());
                 $driver->setLastMatch(new \DateTime());
@@ -593,7 +596,7 @@ class MatchService
                             'passenger' => $passenger->getId(),
                             'url' => $url
                         ];
-                    }else{
+                    } else {
                         $this->logger->info("Match found - " . $passenger->getName() . " - " . $driver->getName());
                     }
                 }
@@ -605,7 +608,7 @@ class MatchService
         } catch (\Exception $e) {
             $this->logger->error("Error matching commuters " . $e->getMessage());
             return [
-                'message' => "Error matching commuters"  . $e->getMessage(),
+                'message' => "Error matching commuters" . $e->getMessage(),
                 'code' => "R01"
             ];
         }
@@ -629,7 +632,7 @@ class MatchService
         } catch (\Exception $e) {
             $this->logger->error("Error matching commuters " . $e->getMessage());
             return [
-                'message' => "Error matching commuters"  . $e->getMessage(),
+                'message' => "Error matching commuters" . $e->getMessage(),
                 'code' => "R01"
             ];
         }

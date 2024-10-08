@@ -57,32 +57,8 @@ type: annotation
 import existing database entities
 php bin/console doctrine:mapping:import --force "App\Entity" annotation --path=src/Entity_new
 
-delete all reservations
-TRUNCATE TABLE `reservation_notes`;
-TRUNCATE TABLE `reservation_add_ons`;
-TRUNCATE TABLE `payments`;
-TRUNCATE TABLE `cleaning`;
-delete FROM `reservations` where id > 0;
-delete FROM `guest` where id > 0;
-delete from room_images where id > 0;
-delete from room_beds where id > 0;
-
-delete from blocked_rooms where id > 0;
-delete from ical where id > 0;
-delete from schedule_messages where id > 0;
-delete from rooms where id > 0;
-delete from add_ons where id > 0;
-delete from employee where id > 0;
-delete from message_template where id > 0;
-delete from schedule_messages where id > 0;
-
-
-numbers by origin
-
-SELECT SUM(DATEDIFF(`check_in`,`check_out`)),`origin`,check_in, check_out FROM `reservations`
-where `check_in` > '2022-11-06'
-and `check_out` < '2022-12-05'
-GROUP BY origin
+export entities into db tables
+php bin/console doctrine:schema:update --force
 
 
 migrating to server
