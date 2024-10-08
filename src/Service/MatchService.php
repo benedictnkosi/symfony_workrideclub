@@ -597,7 +597,6 @@ class MatchService
                         );
 
                         if ($extraDistance > 5) {
-
                             $commuterMatch = new CommuterMatch();
                             $commuterMatch->setDriver($driver);
                             $commuterMatch->setPassenger($passenger);
