@@ -15,184 +15,114 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CommuterController extends AbstractController
 {
+
+
     /**
-     * @Route("api/commuter/create")
+     * @Route("api/whatsapp/login", methods={"POST"})
+     */
+    public function loginWithWhatsApp(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        $response = $commuterApi->loginWithWhatsApp($request);
+        return new JsonResponse($response, 200, array());
+    }
+
+    /**
+     * @Route("api/whatsapp/validate", methods={"POST"})
+     */
+    public function validateVerificationCode(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+
+        $response = $commuterApi->validateVerificationCode($request);
+        return new JsonResponse($response, 200, array());
+    }
+
+
+    /**
+     * @Route("api/commuter/create", methods={"POST"})
      */
     public function createCommuter(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('POST')) {
-            $response = array(
-                'message' => "Method Not Allowed",
-                'code' => "R01"
-            );
-            return new JsonResponse($response, 405, array());
-        }
 
         $response = $commuterApi->createCommuter($request);
 
-        if($response["code"] == "R01"){
+        if ($response["code"] == "R01") {
             return new JsonResponse($response, 200, array());
-        }else{
+        } else {
             return new JsonResponse($response, 201, array());
         }
     }
 
     /**
-     * @Route("api/commuters/{type}")
+     * @Route("api/commuters/{type}", methods={"GET"})
      */
     public function getCommuters($type, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('GET')) {
-            $response = array(
-                'message' => "Method Not Allowed",
-                'code' => "R01"
-            );
-            return new JsonResponse($response, 405, array());
-        }
 
         $response = $commuterApi->getAllCommuters($type);
         return new JsonResponse($response, 200, array());
     }
 
     /**
-     * @Route("api/newdrivers")
+     * @Route("api/newdrivers", methods={"GET"})
      */
     public function getDriversWithNoTravelTime(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('GET')) {
-            $response = array(
-                'message' => "Method Not Allowed",
-                'code' => "R01"
-            );
-            return new JsonResponse($response, 405, array());
-        }
+
 
         $response = $commuterApi->getDriversWithNoTravelTime();
         return new JsonResponse($response, 200, array());
     }
 
     /**
-     * @Route("api/update/commuter/traveltime")
+     * @Route("api/update/commuter/traveltime", methods={"PUT"})
      */
     public function updateDriverTravelTime(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('PUT')) {
-            $response = array(
-                'message' => "Method Not Allowed",
-                'code' => "R01"
-            );
-            return new JsonResponse($response, 405, array());
-        }
 
         $response = $commuterApi->updateDriverTravelTime($request);
         return new JsonResponse($response, 200, array());
     }
 
     /**
-     * @Route("api/update/commuter/status")
+     * @Route("api/update/commuter/status", methods={"PUT"})
      */
     public function updateDriverStatus(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('PUT')) {
-            $response = array(
-                'message' => "Method Not Allowed",
-                'code' => "R01"
-            );
-            return new JsonResponse($response, 405, array());
-        }
+
 
         $response = $commuterApi->updateCommuterStatus($request);
         return new JsonResponse($response, 200, array());
     }
 
     /**
-     * @Route("api/remove/broken")
+     * @Route("api/remove/broken", methods={"DELETE"})
      */
     public function removeBrokenStatus(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('PUT')) {
-            $response = array(
-                'message' => "Method Not Allowed",
-                'code' => "R01"
-            );
-            return new JsonResponse($response, 405, array());
-        }
+
 
         $response = $commuterApi->removeBrokenStatus();
         return new JsonResponse($response, 200, array());
     }
 
     /**
-     * @Route("api/update/commuter/phone")
+     * @Route("api/update/commuter/phone", methods={"PUT"})
      */
     public function updateCommuterPhone(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('PUT')) {
-            $response = array(
-                'message' => "Method Not Allowed",
-                'code' => "R01"
-            );
-            return new JsonResponse($response, 405, array());
-        }
+
 
         $response = $commuterApi->updateCommuterPhone($request);
         return new JsonResponse($response, 200, array());
     }
 
-    /**
-     * @Route("api/stats/new_commuters/{driver}/{days}")
-     */
-    public function getCommutersJoinedCount($driver, $days, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
-    {
-        $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('GET')) {
-            $response = array(
-                'message' => "Method Not Allowed",
-                'code' => "R01"
-            );
-            return new JsonResponse($response, 405, array());
-        }
-
-        $response = $commuterApi->getJoinedLastDays($driver, $days);
-        return new JsonResponse($response, 200, array());
-    }
-
-    /**
-     * @Route("api/stats/fb/new_commuters/{driver}/{days}")
-     */
-    public function getFBCommutersJoinedCount($driver, $days, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
-    {
-        $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('GET')) {
-            $response = array(
-                'message' => "Method Not Allowed",
-                'code' => "R01"
-            );
-            return new JsonResponse($response, 405, array());
-        }
-
-        $response = $commuterApi->getFBJoinedLastDays($driver, $days);
-        return new JsonResponse($response, 200, array());
-    }
-
-    /**
-     * @Route("api/registrations/daily")
-     */
-    public function getRegistrationsStats(Request $request, LoggerInterface $logger,CommuterApi $commuterApi): Response
-    {
-        $logger->info("Starting Method: " . __METHOD__);
-        if (!$request->isMethod('get')) {
-            return new JsonResponse("Method Not Allowed", 405, array());
-        }
-
-        $response = $commuterApi->getRegistrationStats();
-        return new JsonResponse($response, 200, array());
-    }
 }

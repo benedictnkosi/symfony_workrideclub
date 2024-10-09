@@ -137,6 +137,76 @@ class Commuter
     private $workAddress;
 
     /**
+     * @var string|null
+     *
+     * @ORM\Column(name="verification_code", type="string", length=255, nullable=true)
+     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    private $verificationCode;
+
+    /**
+     * @var \DateTime|null
+     *
+     * @ORM\Column(name="verification_code_expiry", type="datetime", nullable=true)
+     */
+    #[ORM\Column(type: "datetime", nullable: true)]
+    private $verificationCodeExpiry;
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getVerificationCodeExpiry(): ?\DateTime
+    {
+        return $this->verificationCodeExpiry;
+    }
+
+    /**
+     * @param \DateTime|null $verificationCodeExpiry
+     */
+    public function setVerificationCodeExpiry(?\DateTime $verificationCodeExpiry): void
+    {
+        $this->verificationCodeExpiry = $verificationCodeExpiry;
+    }
+    /**
+     * @return string|null
+     */
+    public function getVerificationCode(): ?string
+    {
+        return $this->verificationCode;
+    }
+
+    /**
+     * @param string|null $verificationCode
+     */
+    public function setVerificationCode(?string $verificationCode): void
+    {
+        $this->verificationCode = $verificationCode;
+    }
+
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="guid", type="guid", nullable=true)
+     */
+    #[ORM\Column(type: "guid", nullable: true)]
+    private $guid;
+
+    /**
+     * @return string|null
+     */
+    public function getGuid(): ?string
+    {
+        return $this->guid;
+    }
+
+    /**
+     * @param string|null $guid
+     */
+    public function setGuid(?string $guid): void
+    {
+        $this->guid = $guid;
+    }
+    /**
      * @return int
      */
     public function getId(): int

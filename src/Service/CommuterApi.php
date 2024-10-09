@@ -26,7 +26,139 @@ class CommuterApi extends AbstractController
         $this->logger = $logger;
     }
 
-    #[ArrayShape(['message' => "string", 'code' => "string"])]
+
+    public function loginWithWhatsApp(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $parameters = json_decode($request->getContent(), true);
+            $existingCommuter = $this->em->getRepository(Commuter::class)->findOneBy(array('phone' => $parameters["phone"]));
+            $verificationCode = rand(100000, 999999);
+            $verificationExpires = new \DateTime('+5 minutes');
+            if ($existingCommuter !== null) {
+                $existingCommuter->setVerificationCode($verificationCode);
+                $existingCommuter->setVerificationCodeExpiry($verificationExpires);
+                $this->em->persist($existingCommuter);
+                $this->em->flush();
+            } else {
+                $commuter = new Commuter();
+                $commuter->setPhone($parameters["phone"]);
+                $commuter->setVerificationCode($verificationCode);
+                $commuter->setVerificationCodeExpiry($verificationExpires);
+                $commuter->setGuid(bin2hex(random_bytes(16)));
+                $this->em->persist($commuter);
+                $this->em->flush();
+            }
+
+            $response = $this->sendVerificationCode($parameters["phone"], $verificationCode);
+            $responseData = json_decode($response, true);
+            if (!isset($responseData['idMessage'])) {
+                return array(
+                    'message' => "Failed to send message",
+                    'code' => "R01"
+                );
+            } else {
+                return array(
+                    'message' => "Verification code sent successfully",
+                    'code' => "R00"
+                );
+            }
+        } catch (\Exception $e) {
+            $this->logger->error("Error generating verification code  " . $e->getMessage());
+            return array(
+                'message' => "Error generating verification code ",
+                'code' => "R01"
+            );
+        }
+    }
+
+    public function validateVerificationCode(Request $request): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $parameters = json_decode($request->getContent(), true);
+            $commuter = $this->em->getRepository(Commuter::class)->findOneBy(array('phone' => $parameters["phone"]));
+
+            if ($commuter === null) {
+                return array(
+                    'message' => "Commuter not found",
+                    'code' => "R01"
+                );
+            }
+
+            if ($commuter->getVerificationCode() === $parameters["verification_code"] && $commuter->getVerificationCodeExpiry() > new \DateTime()) {
+                return array(
+                    'message' => "Verification code is correct",
+                    'code' => "R00"
+                );
+            } else {
+                $verificationCode = rand(100000, 999999);
+                $commuter->setVerificationCode($verificationCode);
+                $commuter->setVerificationCodeExpiry(new \DateTime('+5 minutes'));
+                $this->em->persist($commuter);
+                $this->em->flush();
+
+                $this->sendVerificationCode($parameters["phone"], $verificationCode);
+
+
+                return array(
+                    'message' => "Verification code is incorrect or expired. A new code has been generated",
+                    'code' => "R01"
+                );
+            }
+        } catch (\Exception $e) {
+            $this->logger->error("Error validating verification code " . $e->getMessage());
+            return array(
+                'message' => "Error validating verification code",
+                'code' => "R01"
+            );
+        }
+    }
+
+    public function sendVerificationCode($phone, $verificationCode)
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $secret = $_ENV['WHATSAPP_SECRET'];
+            $instance = $_ENV['WHATSAPP_INSTANCE'];
+            $url = 'https://7103.api.greenapi.com/waInstance' . $instance . '/sendMessage/' . $secret;
+            $this->logger->info($url);
+            $data = array(
+                'chatId' => str_replace('+', '', $phone) . '@c.us',
+                'message' => 'Your verification code is: ' . $verificationCode
+            );
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+            $response = curl_exec($ch);
+
+            if ($response === false) {
+                throw new \Exception("Failed to send message: " . curl_error($ch));
+            }
+
+            $this->logger->info("Response: " . $response);
+
+            curl_close($ch);
+
+            return $response;
+
+        } catch (\Exception $e) {
+            $this->logger->error("Error sending verification code " . $e->getMessage());
+            return array(
+                'message' => "Error sending verification code",
+                'code' => "R01"
+            );
+        }
+    }
+
+
     public function createCommuter(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -140,7 +272,7 @@ class CommuterApi extends AbstractController
         }
     }
 
-    #[ArrayShape(['message' => "string", 'code' => "string"])]
+
     public function updateCommuterPhone($request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -174,7 +306,7 @@ class CommuterApi extends AbstractController
         }
     }
 
-    #[ArrayShape(['message' => "string", 'code' => "string"])]
+
     public function updateCommuterStatus($request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -226,7 +358,7 @@ class CommuterApi extends AbstractController
         }
     }
 
-    #[ArrayShape(['message' => "string", 'code' => "string"])]
+
     public function removeBrokenStatus(): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
@@ -293,7 +425,7 @@ class CommuterApi extends AbstractController
         }
     }
 
-    #[ArrayShape(['message' => "string", 'code' => "string"])]
+
     public function updateDriverTravelTime($request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
