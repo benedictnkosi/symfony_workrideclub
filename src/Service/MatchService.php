@@ -154,7 +154,7 @@ class MatchService
             $commuterMatch->setDriver($driver);
             $commuterMatch->setPassenger($passenger);
             $commuterMatch->setTotalTrip(intval($parameters["totalTrip"]));
-            $commuterMatch->setDistanceHome(0);
+            $commuterMatch->setAdditionalKm(0);
             $commuterMatch->setDistanceWork(0);
             $commuterMatch->setDurationHome(0);
             $commuterMatch->setDurationWork(0);
@@ -370,6 +370,69 @@ class MatchService
         }
     }
 
+    public function getUserMathes($uid): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+
+
+            $commuter = $this->em->getRepository(Commuter::class)->findOneBy(array('guid' => $uid));
+            if ($commuter == null) {
+                return array(
+                    'message' => "User not found, please logout and login",
+                    'code' => "R01"
+                );
+            }
+
+            if ($commuter->getType() == "driver") {
+                $matches = $this->em->getRepository(CommuterMatch::class)->createQueryBuilder('c')
+                    ->where('c.driver = :driverId')
+                    ->andWhere('c.additionalTime < :maxTime')
+                    ->andWhere('c.status = :status')
+                    ->setParameter('driverId', $commuter->getId())
+                    ->setParameter('maxTime', 15)
+                    ->setParameter('status', "active")
+                    ->getQuery()
+                    ->getResult();
+            } else {
+                $matches = $this->em->getRepository(CommuterMatch::class)->createQueryBuilder('c')
+                    ->where('c.passenger = :passengerId')
+                    ->andWhere('c.additionalTime < :maxTime')
+                    ->andWhere('c.status = :status')
+                    ->setParameter('passengerId', $commuter->getId())
+                    ->setParameter('maxTime', 15)
+                    ->setParameter('status', "active")
+                    ->getQuery()
+                    ->getResult();
+            }
+
+
+
+            if (sizeof($matches) == 0) {
+                return array(
+                    'message' => "No matches found",
+                    'code' => "R01"
+                );
+            }
+
+            $serializer = SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($matches, 'json');
+
+            return array(
+                'message' => "commuter found",
+                'code' => "R00",
+                'matches' => $jsonContent,
+                'user_type' => $commuter->getType()
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error finding match " . $e->getMessage());
+            return array(
+                'message' => "Error getting match",
+                'code' => "R01"
+            );
+        }
+    }
     #[ArrayShape(['message' => "string", 'code' => "string"])]
     public function updateMatchStatus($request): array
     {

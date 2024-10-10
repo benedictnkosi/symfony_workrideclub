@@ -94,6 +94,20 @@ class MatchController extends AbstractController
     }
 
     /**
+     * @Route("api/usermatches/{uid}", methods={"GET", "OPTIONS"})
+     */
+    public function getMatchesForUser($uid, Request $request, LoggerInterface $logger, MatchService $matchApi): Response
+    {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'GET, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
+
+        $logger->info("Starting Method: " . __METHOD__);
+        $response = $matchApi->getUserMathes($uid);
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
+    }
+
+    /**
      * @Route("api/match/{id}")
      */
     public function getMatch($id, Request $request, LoggerInterface $logger, MatchService $matchApi): Response

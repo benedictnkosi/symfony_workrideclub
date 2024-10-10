@@ -35,10 +35,10 @@ class CommuterMatch
     /**
      * @var int|null
      *
-     * @ORM\Column(name="distance_home", type="integer", nullable=true)
+     * @ORM\Column(name="additional_km", type="integer", nullable=true)
      */
     #[ORM\Column(type: "integer", nullable: true)]
-    private $distanceHome;
+    private $additionalKm;
 
     /**
      * @var int|null
@@ -164,17 +164,17 @@ class CommuterMatch
     /**
      * @return int|null
      */
-    public function getDistanceHome(): ?int
+    public function getAdditionalKm(): ?int
     {
-        return $this->distanceHome;
+        return $this->additionalKm;
     }
 
     /**
-     * @param int|null $distanceHome
+     * @param int|null $additionalKm
      */
-    public function setDistanceHome(?int $distanceHome): void
+    public function setAdditionalKm(?int $additionalKm): void
     {
-        $this->distanceHome = $distanceHome;
+        $this->additionalKm = $additionalKm;
     }
 
     /**
