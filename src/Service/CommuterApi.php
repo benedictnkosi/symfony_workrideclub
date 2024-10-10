@@ -89,9 +89,12 @@ class CommuterApi extends AbstractController
             }
 
             if ($commuter->getVerificationCode() === $parameters["verification_code"] && $commuter->getVerificationCodeExpiry() > new \DateTime()) {
+                $profieComplete = $commuter->getName() !== null;
                 return array(
                     'message' => "Verification code is correct",
-                    'code' => "R00"
+                    'code' => "R00",
+                    'guid' => $commuter->getGuid(),
+                    'profile_complete' => $profieComplete
                 );
             } else {
                 $verificationCode = rand(100000, 999999);
@@ -126,6 +129,7 @@ class CommuterApi extends AbstractController
             $instance = $_ENV['WHATSAPP_INSTANCE'];
             $url = 'https://7103.api.greenapi.com/waInstance' . $instance . '/sendMessage/' . $secret;
             $this->logger->info($url);
+            $phone = preg_replace('/^0/', '27', $phone);
             $data = array(
                 'chatId' => str_replace('+', '', $phone) . '@c.us',
                 'message' => 'Your verification code is: ' . $verificationCode
@@ -159,7 +163,7 @@ class CommuterApi extends AbstractController
     }
 
 
-    public function createCommuter(Request $request): array
+    public function updateCommuter(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
@@ -168,35 +172,37 @@ class CommuterApi extends AbstractController
 
             $this->logger->info("name: " . $parameters["name"]);
 
-            $existingCommuter = $this->em->getRepository(Commuter::class)->findOneBy(array('phone' => $parameters["phone"]));
-            if ($existingCommuter !== null) {
+            $commuter = $this->em->getRepository(Commuter::class)->findOneBy(array('guid' => $parameters["guid"]));
+            if ($commuter == null) {
                 return array(
-                    'message' => "Phone number already exists",
+                    'message' => "User not found, please logout and login",
                     'code' => "R01"
                 );
             }
 
+            $homeAddressJson = $parameters["home_address"];
             $homeAddress = new CommuterAddress();
-            $homeAddress->setFullAddress($parameters["home_address"]);
-            $homeAddress->setCity($parameters["home_address_city"]);
-            $homeAddress->setState($parameters["home_address_state"]);
-            $homeAddress->setLatitude($parameters["home_address_lat"]);
-            $homeAddress->setLongitude($parameters["home_address_long"]);
+            $homeAddress->setFullAddress($homeAddressJson["full_address"]);
+            $homeAddress->setCity($homeAddressJson["city"]);
+            $homeAddress->setState($homeAddressJson["state"]);
+            $homeAddress->setLatitude($homeAddressJson["latitude"]);
+            $homeAddress->setLongitude($homeAddressJson["longitude"]);
             $homeAddress->setType("home");
-            $homeAddress->SetCountry($parameters["country"]);
+            $homeAddress->SetCountry($homeAddressJson["country"]);
             $this->em->persist($homeAddress);
             $this->em->flush();
 
             $this->logger->info("Home address created " . $homeAddress->getId());
 
+            $workAddressJson = $parameters["work_address"];
             $workAddress = new CommuterAddress();
-            $workAddress->setFullAddress($parameters["work_address"]);
-            $homeAddress->setState($parameters["home_address_state"]);
-            $workAddress->setCity($parameters["work_city"]);
-            $workAddress->setLatitude($parameters["work_address_lat"]);
-            $workAddress->setLongitude($parameters["work_address_long"]);
+            $workAddress->setFullAddress($workAddressJson["full_address"]);
+            $homeAddress->setState($workAddressJson["state"]);
+            $workAddress->setCity($workAddressJson["city"]);
+            $workAddress->setLatitude($workAddressJson["latitude"]);
+            $workAddress->setLongitude($workAddressJson["longitude"]);
             $workAddress->setType("work");
-            $workAddress->SetCountry($parameters["country"]);
+            $workAddress->SetCountry($workAddressJson["country"]);
 
             $this->em->persist($workAddress);
             $this->em->flush();
@@ -205,7 +211,7 @@ class CommuterApi extends AbstractController
 
             //get driver travel time
 
-            $commuter = new Commuter();
+
             $commuter->setName($parameters["name"]);
 
             $commuter->setPhone($parameters["phone"]);
@@ -218,20 +224,20 @@ class CommuterApi extends AbstractController
             $commuter->setTravelTime(0);
             $commuter->setWorkDeparture($parameters["work_departure_time"]);
             $commuter->setHomeDeparture($parameters["home_departure_time"]);
-            $commuter->setFuel($parameters["fuel_contribution"]);
+            $commuter->setFuel(0);
             $this->em->persist($commuter);
             $this->em->flush();
 
-            $this->logger->info("Commuter created " . $commuter->getId());
+            $this->logger->info("Commuter updated " . $commuter->getId());
 
             return array(
-                'message' => "Commuter created successfully",
+                'message' => "Commuter updated successfully",
                 'code' => "R00"
             );
         } catch (\Exception $e) {
-            $this->logger->error("Error creating commuter " . $e->getMessage());
+            $this->logger->error("Error updating commuter " . $e->getMessage());
             return array(
-                'message' => "Error creating commuter",
+                'message' => "Error updating commuter",
                 'code' => "R01"
             );
         }
@@ -272,6 +278,36 @@ class CommuterApi extends AbstractController
         }
     }
 
+
+    public function getCommuter($guid): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $commuter = $this->em->getRepository(Commuter::class)->findOneBy(array('guid' => $guid));
+            if (!$commuter) {
+                return array(
+                    'message' => "No commuters found",
+                    'code' => "R01"
+                );
+            }
+
+            $serializer = SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($commuter, 'json');
+
+            return array(
+                'message' => "commuter found",
+                'code' => "R00",
+                'commuter' => $jsonContent
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error getting commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuter",
+                'code' => "R01"
+            );
+        }
+    }
 
     public function updateCommuterPhone($request): array
     {

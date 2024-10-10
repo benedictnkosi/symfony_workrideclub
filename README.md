@@ -68,7 +68,7 @@ migrating to server
     1. .env
 8. update the /home/aluvejsl/backend/public/php.ini session.save_path to /tmp
 9. go to MultiPHP Manager, make sure PHP version is latest - PHP 8.1 (ea-php81))
-
+10. change permission for the whole folder to 777
 
 DATABASE_URL="mysql://aluvejsl_user:yo_BBm_QfDVe@127.0.0.1:3306/aluvejsl_aluveapp?serverVersion=mariadb-{slq_server_version}&charset=utf8mb4"
 500 error means that some files are missing. zip again and upload without any disk space error

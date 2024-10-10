@@ -18,111 +18,154 @@ class CommuterController extends AbstractController
 
 
     /**
-     * @Route("api/whatsapp/login", methods={"POST"})
+     * @Route("api/whatsapp/login", methods={"POST", "OPTIONS"})
      */
     public function loginWithWhatsApp(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
+
         $logger->info("Starting Method: " . __METHOD__);
         $response = $commuterApi->loginWithWhatsApp($request);
-        return new JsonResponse($response, 200, array());
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
+
     /**
-     * @Route("api/whatsapp/validate", methods={"POST"})
+     * @Route("api/whatsapp/validate", methods={"POST", "OPTIONS"})
      */
     public function validateVerificationCode(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
         $logger->info("Starting Method: " . __METHOD__);
 
         $response = $commuterApi->validateVerificationCode($request);
-        return new JsonResponse($response, 200, array());
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
 
     /**
-     * @Route("api/commuter/create", methods={"POST"})
+     * @Route("api/commuter/update", methods={"PUT", "OPTIONS"})
      */
-    public function createCommuter(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    public function updateCommuter(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'PUT, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
         $logger->info("Starting Method: " . __METHOD__);
 
-        $response = $commuterApi->createCommuter($request);
+        $response = $commuterApi->updateCommuter($request);
 
         if ($response["code"] == "R01") {
-            return new JsonResponse($response, 200, array());
+            return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
         } else {
-            return new JsonResponse($response, 201, array());
+            return new JsonResponse($response, 201, array('Access-Control-Allow-Origin' => '*'));
         }
     }
 
     /**
-     * @Route("api/commuters/{type}", methods={"GET"})
+     * @Route("api/commuter/{guid}", methods={"GET", "OPTIONS"})
      */
-    public function getCommuters($type, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    public function getCommuter($guid, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
         $logger->info("Starting Method: " . __METHOD__);
 
-        $response = $commuterApi->getAllCommuters($type);
-        return new JsonResponse($response, 200, array());
+        $response = $commuterApi->getCommuter($guid);
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
     /**
-     * @Route("api/newdrivers", methods={"GET"})
+     * @Route("api/commuters/{type}", methods={"GET", "OPTIONS"})
+     */
+    public function getCommuters($type, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
+        $logger->info("Starting Method: " . __METHOD__);
+
+        $response = $commuterApi->getAllCommuters($type);
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
+    }
+
+    /**
+     * @Route("api/newdrivers", methods={"GET", "OPTIONS"})
      */
     public function getDriversWithNoTravelTime(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
         $logger->info("Starting Method: " . __METHOD__);
 
 
         $response = $commuterApi->getDriversWithNoTravelTime();
-        return new JsonResponse($response, 200, array());
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
     /**
-     * @Route("api/update/commuter/traveltime", methods={"PUT"})
+     * @Route("api/update/commuter/traveltime", methods={"PUT", "OPTIONS"})
      */
     public function updateDriverTravelTime(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
         $logger->info("Starting Method: " . __METHOD__);
 
         $response = $commuterApi->updateDriverTravelTime($request);
-        return new JsonResponse($response, 200, array());
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
     /**
-     * @Route("api/update/commuter/status", methods={"PUT"})
+     * @Route("api/update/commuter/status", methods={"PUT", "OPTIONS"})
      */
     public function updateDriverStatus(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
         $logger->info("Starting Method: " . __METHOD__);
 
 
         $response = $commuterApi->updateCommuterStatus($request);
-        return new JsonResponse($response, 200, array());
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
     /**
-     * @Route("api/remove/broken", methods={"DELETE"})
+     * @Route("api/remove/broken", methods={"DELETE", "OPTIONS"})
      */
     public function removeBrokenStatus(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
         $logger->info("Starting Method: " . __METHOD__);
 
 
         $response = $commuterApi->removeBrokenStatus();
-        return new JsonResponse($response, 200, array());
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
     /**
-     * @Route("api/update/commuter/phone", methods={"PUT"})
+     * @Route("api/update/commuter/phone", methods={"PUT", "OPTIONS"})
      */
     public function updateCommuterPhone(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
         $logger->info("Starting Method: " . __METHOD__);
 
 
         $response = $commuterApi->updateCommuterPhone($request);
-        return new JsonResponse($response, 200, array());
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
 }
