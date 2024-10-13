@@ -230,6 +230,22 @@ class CommuterApi extends AbstractController
         $this->logger->info("Starting Method: " . __METHOD__);
 
         try {
+            return $this->sendWhatsAppMessage(phone: $phone, message: "Your verification code is " . $verificationCode);
+        } catch (\Exception $e) {
+            $this->logger->error("Error sending verification code " . $e->getMessage());
+            return array(
+                'message' => "Error sending verification code",
+                'code' => "R01"
+            );
+        }
+    }
+
+
+    public function sendWhatsAppMessage($phone, $message)
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
             $secret = $_ENV['WHATSAPP_SECRET'];
             $instance = $_ENV['WHATSAPP_INSTANCE'];
             $url = 'https://7103.api.greenapi.com/waInstance' . $instance . '/sendMessage/' . $secret;
@@ -237,7 +253,7 @@ class CommuterApi extends AbstractController
             $phone = preg_replace('/^0/', '27', $phone);
             $data = array(
                 'chatId' => str_replace('+', '', $phone) . '@c.us',
-                'message' => 'Your verification code is: ' . $verificationCode
+                'message' => $message
             );
 
             $ch = curl_init($url);
@@ -259,14 +275,13 @@ class CommuterApi extends AbstractController
             return $response;
 
         } catch (\Exception $e) {
-            $this->logger->error("Error sending verification code " . $e->getMessage());
+            $this->logger->error("Error sending message " . $e->getMessage());
             return array(
-                'message' => "Error sending verification code",
+                'message' => "Error sending message",
                 'code' => "R01"
             );
         }
     }
-
 
     public function updateCommuter(Request $request): array
     {

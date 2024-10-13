@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
 use JMS\Serializer\SerializerBuilder;
 use Psr\Log\LoggerInterface;
+use App\Service\CommuterApi;
 
 class MatchService
 {
@@ -166,6 +167,13 @@ class MatchService
             $commuterMatch->setMapLink($parameters["mapLink"]);
             $this->em->persist($commuterMatch);
             $this->em->flush();
+
+            //send whatsapp if additional time is less than 15min 
+            if ($commuterMatch->getAdditionalTime() < 20) {
+                $commuterApi = new CommuterApi($this->em, $this->logger); // Pass the required arguments
+                $commuterApi->sendWhatsAppMessage($driver->getPhone(), "Hey there, " . $passenger->getName() . " is on your route to work. Please login to view the proposed route and to contact your new passenger. workrideclub.com");
+                $commuterApi->sendWhatsAppMessage($passenger->getPhone(), "Hey there, " . $driver->getName() . " drives right pass your neighbourhood. Please login to contact your new lift club dirver. workrideclub.com");
+            }
 
             return array(
                 'message' => "Successfully saved match",
