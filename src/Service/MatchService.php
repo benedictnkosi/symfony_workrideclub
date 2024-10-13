@@ -671,7 +671,7 @@ class MatchService
                             $commuterMatch->setAdditionalTime(999);
                             $commuterMatch->setStatus("ai_costly");
                             $commuterMatch->setDriverStatus("ai_costly");
-                            $commuterMatch->setPassengerStatus("costly");
+                            $commuterMatch->setPassengerStatus("ai_costly");
                             $commuterMatch->setMapLink("");
                             $this->em->persist($commuterMatch);
                             $this->em->flush();
