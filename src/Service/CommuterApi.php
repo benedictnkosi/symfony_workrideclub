@@ -506,7 +506,7 @@ class CommuterApi extends AbstractController
 
         try {
 
-            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => 'broken'));
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => 'broken_address'));
 
             if (sizeof($commuters) < 1) {
                 return array(
@@ -588,7 +588,7 @@ class CommuterApi extends AbstractController
             $this->em->flush();
 
             return array(
-                'message' => "Status updated",
+                'message' => "Driver travel time updated",
                 'code' => "R00"
             );
         } catch (\Exception $e) {
