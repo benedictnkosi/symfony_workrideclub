@@ -655,7 +655,6 @@ class MatchService
                             $commuterMatch->setDriver($driver);
                             $commuterMatch->setPassenger($passenger);
                             $commuterMatch->setTotalTrip(999);
-                            $commuterMatch->setDistanceHome(0);
                             $commuterMatch->setDistanceWork(0);
                             $commuterMatch->setDurationHome(0);
                             $commuterMatch->setDurationWork(0);
