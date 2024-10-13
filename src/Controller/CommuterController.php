@@ -18,16 +18,30 @@ class CommuterController extends AbstractController
 
 
     /**
-     * @Route("api/whatsapp/login", methods={"POST", "OPTIONS"})
+     * @Route("api/whatsapp/register", methods={"POST", "OPTIONS"})
      */
-    public function loginWithWhatsApp(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    public function registerWithWhatsApp(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
         if ($request->getMethod() === "OPTIONS") {
             return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
         }
 
         $logger->info("Starting Method: " . __METHOD__);
-        $response = $commuterApi->loginWithWhatsApp($request);
+        $response = $commuterApi->registerWithWhatsApp($request);
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
+    }
+
+    /**
+     * @Route("api/whatsapp/sendcode/{phoneNumber}", methods={"GET", "OPTIONS"})
+     */
+    public function loginWithWhatsApp($phoneNumber, Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'GET, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
+
+        $logger->info("Starting Method: " . __METHOD__);
+        $response = $commuterApi->loginWithWhatsApp($phoneNumber);
         return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 

@@ -27,7 +27,7 @@ class CommuterApi extends AbstractController
     }
 
 
-    public function loginWithWhatsApp(Request $request): array
+    public function registerWithWhatsApp(Request $request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
@@ -36,17 +36,77 @@ class CommuterApi extends AbstractController
             $existingCommuter = $this->em->getRepository(Commuter::class)->findOneBy(array('phone' => $parameters["phone"]));
             $verificationCode = rand(100000, 999999);
             $verificationExpires = new \DateTime('+5 minutes');
+
+
             if ($existingCommuter !== null) {
-                $existingCommuter->setVerificationCode($verificationCode);
-                $existingCommuter->setVerificationCodeExpiry($verificationExpires);
-                $this->em->persist($existingCommuter);
-                $this->em->flush();
+                return array(
+                    'message' => "User with this number already exists, login instead",
+                    'code' => "R01"
+                );
             } else {
                 $commuter = new Commuter();
-                $commuter->setPhone($parameters["phone"]);
+
                 $commuter->setVerificationCode($verificationCode);
                 $commuter->setVerificationCodeExpiry($verificationExpires);
                 $commuter->setGuid(bin2hex(random_bytes(16)));
+
+                $homeAddressJson = $parameters["home_address"];
+                $workAddressJson = $parameters["work_address"];
+
+                if ($homeAddressJson["full_address"] == $workAddressJson["full_address"]) {
+                    return array(
+                        'message' => "Home and work address cannot be the same",
+                        'code' => "R01"
+                    );
+                }
+
+                $homeAddress = new CommuterAddress();
+                $homeAddress->setFullAddress($homeAddressJson["full_address"]);
+                $homeAddress->setCity($homeAddressJson["city"]);
+                $homeAddress->setState($homeAddressJson["state"]);
+                $homeAddress->setLatitude($homeAddressJson["latitude"]);
+                $homeAddress->setLongitude($homeAddressJson["longitude"]);
+                $homeAddress->setType("home");
+                $homeAddress->SetCountry($homeAddressJson["country"]);
+                $this->em->persist($homeAddress);
+                $this->em->flush();
+
+                $this->logger->info("Home address created " . $homeAddress->getId());
+
+
+                $workAddress = new CommuterAddress();
+                $workAddress->setFullAddress($workAddressJson["full_address"]);
+                $homeAddress->setState($workAddressJson["state"]);
+                $workAddress->setCity($workAddressJson["city"]);
+                $workAddress->setLatitude($workAddressJson["latitude"]);
+                $workAddress->setLongitude($workAddressJson["longitude"]);
+                $workAddress->setType("work");
+                $workAddress->SetCountry($workAddressJson["country"]);
+
+                $this->em->persist($workAddress);
+                $this->em->flush();
+
+                $this->logger->info("Work address created " . $workAddress->getId());
+
+                //get driver travel time
+
+
+                $commuter->setName($parameters["name"]);
+
+                $commuter->setPhone($parameters["phone"]);
+
+                $commuter->setCreated(new \DateTime());
+                $commuter->setHomeAddress($homeAddress);
+                $commuter->setWorkAddress($workAddress);
+                $commuter->setStatus($parameters["status"]);
+                $commuter->setType($parameters["type"]);
+                $commuter->setTravelTime(0);
+                $commuter->setWorkDeparture($parameters["work_departure_time"]);
+                $commuter->setHomeDeparture($parameters["home_departure_time"]);
+                $commuter->setFuel(0);
+                $this->em->persist($commuter);
+                $this->em->flush();
+
                 $this->em->persist($commuter);
                 $this->em->flush();
             }
@@ -55,7 +115,7 @@ class CommuterApi extends AbstractController
             $responseData = json_decode($response, true);
             if (!isset($responseData['idMessage'])) {
                 return array(
-                    'message' => "Failed to send message",
+                    'message' => "Failed to send verificatiion code",
                     'code' => "R01"
                 );
             } else {
@@ -67,7 +127,53 @@ class CommuterApi extends AbstractController
         } catch (\Exception $e) {
             $this->logger->error("Error generating verification code  " . $e->getMessage());
             return array(
-                'message' => "Error generating verification code ",
+                'message' => "Error sending verification code",
+                'code' => "R01"
+            );
+        }
+    }
+
+
+    public function loginWithWhatsApp($phoneNumber): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
+
+        try {
+            $commuter = $this->em->getRepository(Commuter::class)->findOneBy(array('phone' => $phoneNumber));
+            $verificationCode = rand(100000, 999999);
+            $verificationExpires = new \DateTime('+5 minutes');
+            if ($commuter == null) {
+                return array(
+                    'message' => "User with this number not found, register instead",
+                    'code' => "R01"
+                );
+            } else {
+
+                $commuter->setVerificationCode($verificationCode);
+                $commuter->setVerificationCodeExpiry($verificationExpires);
+                $commuter->setGuid(bin2hex(random_bytes(16)));
+
+                $this->em->persist($commuter);
+                $this->em->flush();
+            }
+
+            $response = $this->sendVerificationCode($phoneNumber, $verificationCode);
+            $responseData = json_decode($response, true);
+            if (!isset($responseData['idMessage'])) {
+                return array(
+                    'message' => "Failed to send verificatiion code",
+                    'code' => "R01"
+                );
+            } else {
+                return array(
+                    'message' => "Verification code sent successfully",
+                    'code' => "R00"
+                );
+            }
+        } catch (\Exception $e) {
+            $this->logger->error("Error generating verification code  " . $e->getMessage());
+            return array(
+                'message' => "Error sending verification code",
                 'code' => "R01"
             );
         }
