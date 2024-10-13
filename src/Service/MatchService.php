@@ -408,7 +408,16 @@ class MatchService
             }
 
             $serializer = SerializerBuilder::create()->build();
+
+            foreach ($matches as $match) {
+                $match->getDriver()->setGuid(null);
+                $match->getPassenger()->setGuid(null);
+                $match->getDriver()->setVerificationCode(null);
+                $match->getPassenger()->setVerificationCode(null);
+            }
+
             $jsonContent = $serializer->serialize($matches, 'json');
+
 
             return array(
                 'message' => "commuter found",

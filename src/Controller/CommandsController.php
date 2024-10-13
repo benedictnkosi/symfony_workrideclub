@@ -73,33 +73,33 @@ class CommandsController extends AbstractController
                             $commodity = 'PEPPERS RED';
                         }
 
-                        $weight = (str_replace('</td>', "",$cells[2]));
-                        $weight = (str_replace('>', "",$weight));
-                        $container = (str_replace('</td>', "",$cells[4]));
-                        $container = (str_replace('>', "",$container));
-                        $low = (str_replace('</td>', "",$cells[6]));
-                        $low = (str_replace('>', "",$low));
-                        $high = (str_replace('</td>', "",$cells[7]));
-                        $high = (str_replace('>', "",$high));
-                        $average = (str_replace('</td>', "",$cells[8]));
-                        $average = (str_replace('>', "",$average));
-                        $salesTotal = (str_replace('</td>', "",$cells[9]));
-                        $salesTotal = (str_replace('>', "",$salesTotal));
-                        $totalKgSold = (str_replace('</td>', "",$cells[10]));
-                        $totalKgSold = (str_replace('>', "",$totalKgSold));
-                        $date = (str_replace('</td>', "",$cells[13]));
-                        $date = (str_replace('>', "",$date));
-                        $date = trim(str_replace('</tr', "",$date));
+                        $weight = (str_replace('</td>', "", $cells[2]));
+                        $weight = (str_replace('>', "", $weight));
+                        $container = (str_replace('</td>', "", $cells[4]));
+                        $container = (str_replace('>', "", $container));
+                        $low = (str_replace('</td>', "", $cells[6]));
+                        $low = (str_replace('>', "", $low));
+                        $high = (str_replace('</td>', "", $cells[7]));
+                        $high = (str_replace('>', "", $high));
+                        $average = (str_replace('</td>', "", $cells[8]));
+                        $average = (str_replace('>', "", $average));
+                        $salesTotal = (str_replace('</td>', "", $cells[9]));
+                        $salesTotal = (str_replace('>', "", $salesTotal));
+                        $totalKgSold = (str_replace('</td>', "", $cells[10]));
+                        $totalKgSold = (str_replace('>', "", $totalKgSold));
+                        $date = (str_replace('</td>', "", $cells[13]));
+                        $date = (str_replace('>', "", $date));
+                        $date = trim(str_replace('</tr', "", $date));
 
-//                        if($weight != 5){
+                        //                        if($weight != 5){
 //                            continue;
 //                        }
 
                         $logger->info("weight: " . doubleval($weight));
-                        $logger->info("low: " .  doubleval($low));
-                        $logger->info("high: " .  doubleval($high));
-                        $logger->info("average: " .  doubleval($average));
-                        $logger->info("salesTotal: " .  intval($salesTotal));
+                        $logger->info("low: " . doubleval($low));
+                        $logger->info("high: " . doubleval($high));
+                        $logger->info("average: " . doubleval($average));
+                        $logger->info("salesTotal: " . intval($salesTotal));
                         $logger->info("totalKgSold: " . intval($totalKgSold));
                         $logger->info("date: " . $date);
 
@@ -117,7 +117,7 @@ class CommandsController extends AbstractController
 
                         //log query
                         $logger->info("query: " . print_r($existingPrices, true));
-                        if(sizeof($existingPrices)>0){
+                        if (sizeof($existingPrices) > 0) {
                             $responseArray[] = array(
                                 'result_code' => "Records found for date"
                             );
@@ -125,7 +125,7 @@ class CommandsController extends AbstractController
                             return new JsonResponse($responseArray, 200, array());
                         }
 
-                        if(intval($totalKgSold)>0){
+                        if (intval($totalKgSold) > 0) {
 
 
                             $pepperPrice = new PepperPrices();
@@ -171,7 +171,7 @@ class CommandsController extends AbstractController
      * @Route("no_auth/getavgmonthlymarketprices/{weight}")
      * @throws Exception
      */
-    public function getMonthlyPriceHistory($weight,LoggerInterface $logger, EntityManagerInterface $entityManager): Response
+    public function getMonthlyPriceHistory($weight, LoggerInterface $logger, EntityManagerInterface $entityManager): Response
     {
         $logger->info("Starting Method: " . __METHOD__);
 
@@ -494,8 +494,15 @@ GROUP BY
     }
 
     /**
-     * @Route("no_auth/runcommand/deleteallrooms")
+     * @Route("api/healthcheck")
      */
 
-
+    public function healthCheck(LoggerInterface $logger): Response
+    {
+        $logger->info("Starting Method: " . __METHOD__);
+        $responseArray[] = array(
+            'result_code' => "OK"
+        );
+        return new JsonResponse($responseArray, 200, array());
+    }
 }
