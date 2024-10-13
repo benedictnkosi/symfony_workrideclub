@@ -407,15 +407,6 @@ class MatchService
                     ->getResult();
             }
 
-
-
-            if (sizeof($matches) == 0) {
-                return array(
-                    'message' => "No matches found",
-                    'code' => "R01"
-                );
-            }
-
             $serializer = SerializerBuilder::create()->build();
             $jsonContent = $serializer->serialize($matches, 'json');
 

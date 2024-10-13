@@ -153,12 +153,12 @@ class CommuterController extends AbstractController
     }
 
     /**
-     * @Route("api/remove/broken", methods={"DELETE", "OPTIONS"})
+     * @Route("api/remove/broken", methods={"PUT", "OPTIONS"})
      */
     public function removeBrokenStatus(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
     {
         if ($request->getMethod() === "OPTIONS") {
-            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'PUT, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
         }
         $logger->info("Starting Method: " . __METHOD__);
 
