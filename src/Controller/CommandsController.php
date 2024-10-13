@@ -494,15 +494,19 @@ GROUP BY
     }
 
     /**
-     * @Route("api/healthcheck")
+     * @Route("api/healthcheck", methods={"GET", "OPTIONS"})
      */
 
-    public function healthCheck(LoggerInterface $logger): Response
+    public function healthCheck(Request $request, LoggerInterface $logger): Response
     {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'GET, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
+
         $logger->info("Starting Method: " . __METHOD__);
         $responseArray[] = array(
             'result_code' => "OK"
         );
-        return new JsonResponse($responseArray, 200, array());
+        return new JsonResponse($responseArray, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 }
