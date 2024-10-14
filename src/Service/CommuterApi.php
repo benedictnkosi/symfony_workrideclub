@@ -97,7 +97,7 @@ class CommuterApi extends AbstractController
                 $commuter->setCreated(new \DateTime());
                 $commuter->setHomeAddress($homeAddress);
                 $commuter->setWorkAddress($workAddress);
-                $commuter->setStatus($parameters["status"]);
+                $commuter->setStatus("new");
                 $commuter->setType($parameters["type"]);
                 $commuter->setTravelTime(0);
                 $commuter->setWorkDeparture($parameters["work_departure_time"]);
@@ -581,8 +581,38 @@ class CommuterApi extends AbstractController
         }
     }
 
+    public function getCommutersWithNoTravelTime(): array
+    {
+        $this->logger->info("Starting Method: " . __METHOD__);
 
-    public function updateDriverTravelTime($request): array
+        try {
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => 'new', 'travelTime' => 0), array('created' => 'DESC'));
+            if (sizeof($commuters) == 0) {
+                return array(
+                    'message' => "No commuters found",
+                    'code' => "R01"
+                );
+            }
+
+            $serializer = SerializerBuilder::create()->build();
+            $jsonContent = $serializer->serialize($commuters, 'json');
+
+            return array(
+                'message' => "commuters found",
+                'code' => "R00",
+                'commuters' => $jsonContent
+            );
+        } catch (\Exception $e) {
+            $this->logger->error("Error creating commuter " . $e->getMessage());
+            return array(
+                'message' => "Error getting commuterS",
+                'code' => "R01"
+            );
+        }
+    }
+
+
+    public function updateCommuterTravelTime($request): array
     {
         $this->logger->info("Starting Method: " . __METHOD__);
 
@@ -599,6 +629,7 @@ class CommuterApi extends AbstractController
             }
 
             $commuter->setTravelTime($parameters["travel_time"]);
+            $commuter->setStatus("active");
             $this->em->persist($commuter);
             $this->em->flush();
 

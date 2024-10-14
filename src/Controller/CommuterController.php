@@ -123,6 +123,22 @@ class CommuterController extends AbstractController
         return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
+
+    /**
+     * @Route("api/newCommuters", methods={"GET", "OPTIONS"})
+     */
+    public function getCommutersWithNoTravelTime(Request $request, LoggerInterface $logger, CommuterApi $commuterApi): Response
+    {
+        if ($request->getMethod() === "OPTIONS") {
+            return new Response('', 200, array('Access-Control-Allow-Origin' => '*', 'Access-Control-Allow-Methods' => 'POST, OPTIONS', 'Access-Control-Allow-Headers' => 'Content-Type'));
+        }
+        $logger->info("Starting Method: " . __METHOD__);
+
+
+        $response = $commuterApi->getCommutersWithNoTravelTime();
+        return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
+    }
+
     /**
      * @Route("api/update/commuter/traveltime", methods={"PUT", "OPTIONS"})
      */
@@ -133,7 +149,7 @@ class CommuterController extends AbstractController
         }
         $logger->info("Starting Method: " . __METHOD__);
 
-        $response = $commuterApi->updateDriverTravelTime($request);
+        $response = $commuterApi->updateCommuterTravelTime($request);
         return new JsonResponse($response, 200, array('Access-Control-Allow-Origin' => '*'));
     }
 
