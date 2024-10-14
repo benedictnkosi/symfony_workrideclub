@@ -667,7 +667,7 @@ class MatchService
                             $passenger->getWorkAddress()
                         );
 
-                        if ($extraDistance > 5) {
+                        if ($extraDistance > 999) {
                             $commuterMatch = new CommuterMatch();
                             $commuterMatch->setDriver($driver);
                             $commuterMatch->setPassenger($passenger);
