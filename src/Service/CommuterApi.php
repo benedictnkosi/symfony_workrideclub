@@ -532,7 +532,7 @@ class CommuterApi extends AbstractController
 
             foreach ($commuters as $commuter) {
                 //remove all matches
-                $commuter->setStatus("active");
+                $commuter->setStatus("new");
                 $this->em->persist($commuter);
             }
 
@@ -625,6 +625,13 @@ class CommuterApi extends AbstractController
                 return array(
                     'message' => "Commuter not found",
                     'code' => "R01"
+                );
+            }
+
+            if ("0" == $parameters["travel_time"]) {
+                return array(
+                    'message' => "Travel time can not be zero",
+                    'code' => "R00"
                 );
             }
 
