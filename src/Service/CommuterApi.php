@@ -533,7 +533,7 @@ class CommuterApi extends AbstractController
             }
 
             //reset status for new commuters
-            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => 'active', 'travelTime' => 0));
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('travelTime' => 0));
 
             if (sizeof($commuters) > 0) {
                 foreach ($commuters as $commuter) {
