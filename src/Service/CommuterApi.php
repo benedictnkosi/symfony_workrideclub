@@ -521,20 +521,29 @@ class CommuterApi extends AbstractController
 
         try {
 
+            //remove broken status
             $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => 'broken_address'));
 
-            if (sizeof($commuters) < 1) {
-                return array(
-                    'message' => "Commuters not found",
-                    'code' => "R01"
-                );
+            if (sizeof($commuters) > 0) {
+                foreach ($commuters as $commuter) {
+                    //remove all matches
+                    $commuter->setStatus("new");
+                    $this->em->persist($commuter);
+                }
             }
 
-            foreach ($commuters as $commuter) {
-                //remove all matches
-                $commuter->setStatus("new");
-                $this->em->persist($commuter);
+            //reset status for new commuters
+            $commuters = $this->em->getRepository(Commuter::class)->findBy(array('status' => 'active', 'travelTime' => 0));
+
+            if (sizeof($commuters) > 0) {
+                foreach ($commuters as $commuter) {
+                    //remove all matches
+                    $commuter->setStatus("new");
+                    $this->em->persist($commuter);
+                }
             }
+
+
 
             $this->em->flush();
 
