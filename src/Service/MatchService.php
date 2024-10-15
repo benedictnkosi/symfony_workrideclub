@@ -667,7 +667,7 @@ class MatchService
                             $passenger->getWorkAddress()
                         );
 
-                        if ($extraDistance > 999) {
+                        if ($extraDistance > 15) {
                             $commuterMatch = new CommuterMatch();
                             $commuterMatch->setDriver($driver);
                             $commuterMatch->setPassenger($passenger);
@@ -676,16 +676,20 @@ class MatchService
                             $commuterMatch->setDurationHome(0);
                             $commuterMatch->setDurationWork(0);
 
-                            $commuterMatch->setAdditionalTime(999);
+                            $commuterMatch->setAdditionalTime($extraDistance);
                             $commuterMatch->setStatus("ai_costly");
                             $commuterMatch->setDriverStatus("ai_costly");
                             $commuterMatch->setPassengerStatus("ai_costly");
-                            $commuterMatch->setMapLink("");
+                            $commuterMatch->setMapLink($url);
                             $this->em->persist($commuterMatch);
                             $this->em->flush();
 
-                            $this->logger->info("Match found but extra distance to costly- " . $extraDistance . " - " . $passenger->getName() . " - " . $driver->getName());
+                            $this->logger->info("Match found but extra distance to costly - " . $extraDistance . " - " . $passenger->getName() . " - " . $driver->getName());
+                            $this->logger->info("driver home " . $driver->getHomeAddress()->getFullAddress() . " - " . $driver->getWorkAddress()->getFullAddress());
+                            $this->logger->info(message: "passenger home " . $passenger->getHomeAddress()->getFullAddress() . " - " . $passenger->getWorkAddress()->getFullAddress());
                         } else {
+                            $this->logger->info("Match found - " . $extraDistance . " - " . $passenger->getName() . " - " . $driver->getName());
+
                             return [
                                 'driver' => $driver->getId(),
                                 'passenger' => $passenger->getId(),
